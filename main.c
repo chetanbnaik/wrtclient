@@ -153,7 +153,7 @@ gint main(int argc, char *argv[])
 	wsi = lws_client_connect_via_info (&cinfo);
 	g_source_set_callback (wssource, wscallback, wscontext, NULL);
 	
-	gst_element_set_state (pipeline, GST_STATE_PLAYING);
+	//gst_element_set_state (pipeline, GST_STATE_PLAYING);
 	
 	/* run loop */
 	g_main_loop_run (loop);
