@@ -1,19 +1,24 @@
-CFLAGS=`pkg-config --cflags glib-2.0 gstreamer-1.0 libwebsockets` -g
+CFLAGS=`pkg-config --cflags glib-2.0 gstreamer-1.0 libwebsockets jansson` -g
 #CFLAGS += -I/home/osboxes/client/websocketpp/
-LIBS=`pkg-config --libs glib-2.0 gstreamer-1.0 libwebsockets` 
+LIBS=`pkg-config --libs glib-2.0 gstreamer-1.0 libwebsockets jansson` 
+LIBS+= -lpthread -ldl
 #LIBS += -lboost_system -lboost_random -lpthread -lboost_timer -lboost_chrono -lrt
 
-OBJECTS=client.o wsclient.o main.o
-SOURCES=client.c client.h wsclient.c wsclient.h main.c 
+OBJECTS=log.o psclient.o
+SOURCES=log.c log.h debug.h main.c 
 
 all: webrtcinterface
 
+.PHONY: transport
+
+transport:
+	$(MAKE) -C transport
+
 webrtcinterface: $(OBJECTS)
 	$(CC) -o $@ $(OBJECTS) $(LIBS)
-      
-client.o: client.c client.h
-wsclient.o: wsclient.c wsclient.h
-main.o: main.c client.h wsclient.h
+
+log.o: log.c log.h debug.h
+psclient.o: psclient.c ps_websockets.h
 
 
 clean:

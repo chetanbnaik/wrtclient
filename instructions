@@ -1,0 +1,20 @@
+sudo apt-get install libnice-dev openssl libsofia-sip-ua-dev libtool libglib2.0-dev libssl-dev libjansson-dev automake
+
+Required libraries: --> libnice, libsofia-sip-ua glib libjansson openssl libssl-dev
+
+git clone https://github.com/cisco/libsrtp.git
+cd libsrtp
+git checkout v1.5.4
+./configure --prefix=/usr/local --enable-openssl
+make shared_library
+sudo make install
+
+git clone https://github.com/sctplab/usrsctp
+cd usrsctp
+./bootstrap
+./configure --prefix=/usr/local
+make
+sudo make install
+
+
+openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout pscert.key -out pscert.pem

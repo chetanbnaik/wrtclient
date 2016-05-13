@@ -1,0 +1,1000 @@
+Hello!
+Exiting... wait!!
+[Fri Apr 22 06:07:06 2016] Shutting down...
+[Fri Apr 22 06:07:06 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 06:07:06 2016] Websocket destroyed
+Bye!
+Hello!
+[Fri Apr 22 06:07:20 2016] [31m[ERR][0m [/home/osboxes/client/psclient/transport/ps_websockets.c:ps_websockets_callback:211] LWS_CALLBACK_CLIENT_CONNECTION_ERROR
+Exiting... wait!!
+[Fri Apr 22 06:07:34 2016] Shutting down...
+[Fri Apr 22 06:07:34 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 06:07:34 2016] Websocket destroyed
+Bye!
+Hello!
+[Fri Apr 22 06:07:49 2016] [31m[ERR][0m [/home/osboxes/client/psclient/transport/ps_websockets.c:ps_websockets_callback:211] LWS_CALLBACK_CLIENT_CONNECTION_ERROR
+Exiting... wait!!
+[Fri Apr 22 06:08:09 2016] Shutting down...
+[Fri Apr 22 06:08:09 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 06:08:09 2016] Websocket destroyed
+Bye!
+Hello!
+Exiting... wait!!
+[Fri Apr 22 07:38:50 2016] Shutting down...
+[Fri Apr 22 07:38:50 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 07:38:50 2016] Websocket destroyed
+Bye!
+Hello!
+Exiting... wait!!
+[Fri Apr 22 09:52:37 2016] Shutting down...
+[Fri Apr 22 09:52:37 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 09:52:37 2016] Websocket destroyed
+Bye!
+Hello!
+[Fri Apr 22 09:52:45 2016] [31m[ERR][0m [/home/osboxes/client/psclient/transport/ps_websockets.c:ps_websockets_callback:211] LWS_CALLBACK_CLIENT_CONNECTION_ERROR
+Exiting... wait!!
+[Fri Apr 22 09:52:48 2016] Shutting down...
+[Fri Apr 22 09:52:48 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 09:52:48 2016] Websocket destroyed
+Bye!
+Hello!
+[Fri Apr 22 09:55:30 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri Apr 22 09:55:30 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:31 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:32 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:33 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:34 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:35 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:36 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:37 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:38 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:39 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:40 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:41 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 09:55:42 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Fri Apr 22 09:55:43 2016] Shutting down...
+[Fri Apr 22 09:55:43 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 09:55:43 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri Apr 22 09:55:43 2016] Transport gone (0x82d8000)...
+[Fri Apr 22 09:55:43 2016] Websocket destroyed
+Bye!
+Hello!
+[Fri Apr 22 10:27:24 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri Apr 22 10:27:24 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 10:27:25 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 10:27:26 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Fri Apr 22 10:27:27 2016] Shutting down...
+[Fri Apr 22 10:27:27 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 10:27:27 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 10:27:27 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri Apr 22 10:27:27 2016] Transport gone (0x9dee000)...
+[Fri Apr 22 10:27:27 2016] Websocket destroyed
+Bye!
+Hello!
+[Fri Apr 22 12:25:03 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri Apr 22 12:25:03 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 12:25:04 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 12:25:05 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 12:25:06 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Fri Apr 22 12:25:06 2016] Shutting down...
+[Fri Apr 22 12:25:06 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 12:25:06 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri Apr 22 12:25:06 2016] Transport gone (0x91ab000)...
+[Fri Apr 22 12:25:06 2016] Websocket destroyed
+Bye!
+Hello!
+[Fri Apr 22 12:25:24 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri Apr 22 12:25:24 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 12:25:25 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Fri Apr 22 12:25:26 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Fri Apr 22 12:25:27 2016] Shutting down...
+[Fri Apr 22 12:25:27 2016] ps_websockets_thread: thread ended
+[Fri Apr 22 12:25:27 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri Apr 22 12:25:27 2016] Transport gone (0x891d000)...
+[Fri Apr 22 12:25:27 2016] Websocket destroyed
+Bye!
+Hello!
+Exiting... wait!!
+[Wed Apr 27 11:15:53 2016] Shutting down...
+[Wed Apr 27 11:15:53 2016] ps_websockets_thread: thread ended
+[Wed Apr 27 11:15:53 2016] Websocket destroyed
+Bye!
+Hello!
+[Wed Apr 27 11:16:03 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Wed Apr 27 11:16:03 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:04 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:05 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:06 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:07 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:08 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:09 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:10 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:11 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:12 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Wed Apr 27 11:16:13 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Wed Apr 27 11:16:13 2016] Shutting down...
+[Wed Apr 27 11:16:13 2016] ps_websockets_thread: thread ended
+[Wed Apr 27 11:16:13 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed Apr 27 11:16:13 2016] Transport gone (0x9d71418)...
+[Wed Apr 27 11:16:13 2016] Websocket destroyed
+Bye!
+Hello!
+Exiting... wait!!
+[Thu Apr 28 08:26:42 2016] Shutting down...
+[Thu Apr 28 08:26:42 2016] ps_websockets_thread: thread ended
+[Thu Apr 28 08:26:42 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu Apr 28 08:26:47 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Thu Apr 28 08:26:47 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu Apr 28 08:26:48 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu Apr 28 08:26:49 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu Apr 28 08:26:50 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Thu Apr 28 08:26:51 2016] Shutting down...
+[Thu Apr 28 08:26:51 2016] ps_websockets_thread: thread ended
+[Thu Apr 28 08:26:51 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Thu Apr 28 08:26:51 2016] Transport gone (0x899c418)...
+[Thu Apr 28 08:26:51 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu May  5 08:00:02 2016] Local IP is 10.0.2.4
+[Thu May  5 08:00:02 2016] Session watchdog started...
+Exiting... wait!!
+[Thu May  5 08:00:06 2016] Shutting down...
+[Thu May  5 08:00:06 2016] ps_websockets_thread: thread ended
+[Thu May  5 08:00:06 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu May  5 08:00:20 2016] Local IP is 10.0.2.4
+[Thu May  5 08:00:20 2016] Session watchdog started...
+[Thu May  5 08:00:20 2016] [31m[ERR][0m [/home/osboxes/client/psclient/transport/ps_websockets.c:ps_websockets_callback:230] LWS_CALLBACK_CLIENT_CONNECTION_ERROR
+Exiting... wait!!
+[Thu May  5 08:00:26 2016] Shutting down...
+[Thu May  5 08:00:26 2016] ps_websockets_thread: thread ended
+[Thu May  5 08:00:26 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu May  5 08:00:50 2016] Local IP is 10.0.2.4
+[Thu May  5 08:00:50 2016] Session watchdog started...
+[Thu May  5 08:00:50 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Thu May  5 08:00:50 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 08:00:51 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 08:00:52 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Thu May  5 08:00:52 2016] Shutting down...
+[Thu May  5 08:00:52 2016] ps_websockets_thread: thread ended
+[Thu May  5 08:00:52 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Thu May  5 08:00:52 2016] Transport gone (0x98744a8)...
+[Thu May  5 08:00:52 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu May  5 10:36:09 2016] Autodetecting local IP...
+[Thu May  5 10:36:09 2016] Local IP is 10.0.2.4
+[Thu May  5 10:36:09 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Thu May  5 10:36:09 2016] ICE handles watchdog started
+[Thu May  5 10:36:09 2016] Session watchdog started...
+[Thu May  5 10:36:09 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Thu May  5 10:36:09 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:36:10 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:36:11 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:36:12 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:36:13 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:36:14 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Thu May  5 10:36:14 2016] Shutting down...
+[Thu May  5 10:36:14 2016] ps_websockets_thread: thread ended
+[Thu May  5 10:36:14 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Thu May  5 10:36:14 2016] Transport gone (0xb5901f28)...
+[Thu May  5 10:36:14 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu May  5 10:37:19 2016] Autodetecting local IP...
+[Thu May  5 10:37:19 2016] Local IP is 10.0.2.4
+[Thu May  5 10:37:19 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates enabled, IPv6 support disabled)
+[Thu May  5 10:37:19 2016] [33m[WARN][0m ICE-TCP only works in libnice if you enable ICE Lite too: disabling ICE-TCP support
+[Thu May  5 10:37:19 2016] ICE handles watchdog started
+[Thu May  5 10:37:19 2016] Session watchdog started...
+[Thu May  5 10:37:19 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Thu May  5 10:37:19 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:37:20 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:37:21 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:37:22 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:37:23 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:37:24 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:37:25 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 10:37:26 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Thu May  5 10:37:26 2016] Shutting down...
+[Thu May  5 10:37:26 2016] ps_websockets_thread: thread ended
+[Thu May  5 10:37:26 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Thu May  5 10:37:26 2016] Transport gone (0xb5901f28)...
+[Thu May  5 10:37:26 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu May  5 11:53:02 2016] Autodetecting local IP...
+[Thu May  5 11:53:02 2016] Local IP is 10.0.2.4
+[Thu May  5 11:53:02 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Thu May  5 11:53:02 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Thu May  5 11:53:02 2016] ICE handles watchdog started
+[Thu May  5 11:53:02 2016] Session watchdog started...
+[Thu May  5 11:53:02 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Thu May  5 11:53:02 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 11:53:03 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 11:53:04 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 11:53:05 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 11:53:06 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 11:53:07 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Thu May  5 11:53:08 2016] Shutting down...
+[Thu May  5 11:53:08 2016] ps_websockets_thread: thread ended
+[Thu May  5 11:53:08 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Thu May  5 11:53:08 2016] Transport gone (0xb5a01748)...
+[Thu May  5 11:53:08 2016] Websocket destroyed
+Bye!
+Hello!
+[Thu May  5 12:50:59 2016] Autodetecting local IP...
+[Thu May  5 12:50:59 2016] Local IP is 10.0.2.4
+[Thu May  5 12:50:59 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Thu May  5 12:50:59 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Thu May  5 12:50:59 2016] BUNDLE is NOT going to be forced
+[Thu May  5 12:50:59 2016] rtcp-mux is NOT going to be forced
+[Thu May  5 12:50:59 2016]   -- RTCP component blackhole socket bound to port 55177
+[Thu May  5 12:50:59 2016] ICE handles watchdog started
+[Thu May  5 12:50:59 2016] Session watchdog started...
+[Thu May  5 12:50:59 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Thu May  5 12:50:59 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 12:51:00 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 12:51:01 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 12:51:02 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 12:51:03 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+[Thu May  5 12:51:04 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Thu May  5 12:51:04 2016] Shutting down...
+[Thu May  5 12:51:04 2016] ps_websockets_thread: thread ended
+[Thu May  5 12:51:04 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Thu May  5 12:51:04 2016] Transport gone (0xb5901748)...
+[Thu May  5 12:51:04 2016] Websocket destroyed
+[Thu May  5 12:51:04 2016] Destroying sessions...
+[Thu May  5 12:51:04 2016] Freeing crypto resources..
+[Thu May  5 12:51:04 2016] Cleaning SDP structures..
+[Thu May  5 12:51:04 2016] De-initializing SCTP..
+[Thu May  5 12:51:04 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 05:57:31 2016] Autodetecting local IP...
+[Fri May  6 05:57:31 2016] Local IP is 10.0.2.4
+[Fri May  6 05:57:31 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 05:57:31 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 05:57:31 2016] BUNDLE is NOT going to be forced
+[Fri May  6 05:57:31 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 05:57:31 2016]   -- RTCP component blackhole socket bound to port 57198
+[Fri May  6 05:57:31 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 05:57:31 2016] ICE handles watchdog started
+[Fri May  6 05:57:31 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 05:57:31 2016] Session watchdog started...
+Exiting... wait!!
+[Fri May  6 05:57:43 2016] Shutting down...
+[Fri May  6 05:57:43 2016] ps_websockets_thread: thread ended
+[Fri May  6 05:57:43 2016] Websocket destroyed
+[Fri May  6 05:57:43 2016] Destroying sessions...
+[Fri May  6 05:57:43 2016] Freeing crypto resources..
+[Fri May  6 05:57:43 2016] Cleaning SDP structures..
+[Fri May  6 05:57:43 2016] De-initializing SCTP..
+[Fri May  6 05:57:43 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 05:58:01 2016] Autodetecting local IP...
+[Fri May  6 05:58:01 2016] Local IP is 10.0.2.4
+[Fri May  6 05:58:01 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 05:58:01 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 05:58:01 2016] BUNDLE is NOT going to be forced
+[Fri May  6 05:58:01 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 05:58:01 2016]   -- RTCP component blackhole socket bound to port 46682
+[Fri May  6 05:58:01 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 05:58:01 2016] ICE handles watchdog started
+[Fri May  6 05:58:01 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 05:58:01 2016] Session watchdog started...
+[Fri May  6 05:58:01 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 05:58:01 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Fri May  6 05:58:14 2016] Shutting down...
+[Fri May  6 05:58:14 2016] ps_websockets_thread: thread ended
+[Fri May  6 05:58:14 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri May  6 05:58:14 2016] Transport gone (0xb5913bd0)...
+[Fri May  6 05:58:14 2016] Websocket destroyed
+[Fri May  6 05:58:14 2016] Destroying sessions...
+[Fri May  6 05:58:14 2016] Freeing crypto resources..
+[Fri May  6 05:58:14 2016] Cleaning SDP structures..
+[Fri May  6 05:58:14 2016] De-initializing SCTP..
+[Fri May  6 05:58:14 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 08:15:21 2016] Autodetecting local IP...
+[Fri May  6 08:15:21 2016] Local IP is 10.0.2.4
+[Fri May  6 08:15:21 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 08:15:21 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 08:15:21 2016] BUNDLE is NOT going to be forced
+[Fri May  6 08:15:21 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 08:15:21 2016]   -- RTCP component blackhole socket bound to port 52016
+[Fri May  6 08:15:21 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 08:15:21 2016] ICE handles watchdog started
+[Fri May  6 08:15:21 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 08:15:21 2016] Session watchdog started...
+[Fri May  6 08:15:21 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 08:15:21 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Hello!
+[Fri May  6 08:16:14 2016] Autodetecting local IP...
+[Fri May  6 08:16:14 2016] Local IP is 10.0.2.4
+[Fri May  6 08:16:14 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 08:16:14 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 08:16:14 2016] BUNDLE is NOT going to be forced
+[Fri May  6 08:16:14 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 08:16:14 2016]   -- RTCP component blackhole socket bound to port 57073
+[Fri May  6 08:16:14 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 08:16:14 2016] ICE handles watchdog started
+[Fri May  6 08:16:14 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 08:16:14 2016] Session watchdog started...
+[Fri May  6 08:16:14 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 08:16:14 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"cmd": "play"}
+Exiting... wait!!
+[Fri May  6 08:16:22 2016] Shutting down...
+[Fri May  6 08:16:22 2016] ps_websockets_thread: thread ended
+[Fri May  6 08:16:22 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri May  6 08:16:22 2016] Transport gone (0x93ac680)...
+[Fri May  6 08:16:22 2016] Websocket destroyed
+[Fri May  6 08:16:22 2016] Destroying sessions...
+[Fri May  6 08:16:22 2016] Freeing crypto resources..
+[Fri May  6 08:16:22 2016] Cleaning SDP structures..
+[Fri May  6 08:16:22 2016] De-initializing SCTP..
+[Fri May  6 08:16:22 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 12:28:06 2016] Autodetecting local IP...
+[Fri May  6 12:28:06 2016] Local IP is 10.0.2.4
+[Fri May  6 12:28:06 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 12:28:06 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 12:28:06 2016] BUNDLE is NOT going to be forced
+[Fri May  6 12:28:06 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 12:28:06 2016]   -- RTCP component blackhole socket bound to port 38577
+[Fri May  6 12:28:06 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 12:28:06 2016] ICE handles watchdog started
+[Fri May  6 12:28:06 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 12:28:06 2016] Session watchdog started...
+[Fri May  6 12:28:06 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 12:28:42 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"ps":"create"}
+[Fri May  6 13:06:02 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"ps":"create"}
+Exiting... wait!!
+[Fri May  6 13:06:19 2016] Shutting down...
+[Fri May  6 13:06:19 2016] ps_websockets_thread: thread ended
+[Fri May  6 13:06:19 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri May  6 13:06:19 2016] Transport gone (0x8253680)...
+[Fri May  6 13:06:19 2016] Websocket destroyed
+[Fri May  6 13:06:19 2016] Destroying sessions...
+[Fri May  6 13:06:19 2016] Freeing crypto resources..
+[Fri May  6 13:06:19 2016] Cleaning SDP structures..
+[Fri May  6 13:06:19 2016] De-initializing SCTP..
+[Fri May  6 13:06:19 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 14:06:15 2016] Autodetecting local IP...
+[Fri May  6 14:06:15 2016] Local IP is 10.0.2.4
+[Fri May  6 14:06:15 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 14:06:15 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 14:06:15 2016] BUNDLE is NOT going to be forced
+[Fri May  6 14:06:15 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 14:06:15 2016]   -- RTCP component blackhole socket bound to port 49303
+[Fri May  6 14:06:15 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 14:06:15 2016] ICE handles watchdog started
+[Fri May  6 14:06:15 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 14:06:15 2016] Session watchdog started...
+[Fri May  6 14:06:15 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 14:07:32 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"session_id":0}
+[Fri May  6 14:07:32 2016] [(null)] returning API error 456 (Missing mandatory element (transaction))
+[Fri May  6 14:07:58 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"session_id":0,"transaction":2}
+[Fri May  6 14:07:58 2016] [(null)] returning API error 467 (Invalid element type (transaction should be a string))
+[Fri May  6 14:08:16 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"session_id":0,"transaction":"create"}
+Exiting... wait!!
+[Fri May  6 14:38:20 2016] Shutting down...
+[Fri May  6 14:38:20 2016] ps_websockets_thread: thread ended
+[Fri May  6 14:38:20 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri May  6 14:38:20 2016] Transport gone (0x81ff678)...
+[Fri May  6 14:38:20 2016] Websocket destroyed
+[Fri May  6 14:38:20 2016] Destroying sessions...
+[Fri May  6 14:38:20 2016] Freeing crypto resources..
+[Fri May  6 14:38:20 2016] Cleaning SDP structures..
+[Fri May  6 14:38:20 2016] De-initializing SCTP..
+[Fri May  6 14:38:20 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 14:38:44 2016] Autodetecting local IP...
+[Fri May  6 14:38:44 2016] Local IP is 10.0.2.4
+[Fri May  6 14:38:44 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 14:38:44 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 14:38:44 2016] BUNDLE is NOT going to be forced
+[Fri May  6 14:38:44 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 14:38:44 2016]   -- RTCP component blackhole socket bound to port 46032
+[Fri May  6 14:38:44 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 14:38:44 2016] ICE handles watchdog started
+[Fri May  6 14:38:44 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 14:38:44 2016] Session watchdog started...
+[Fri May  6 14:38:44 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 14:39:00 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"session_id":0,"transaction":"create"}
+[Fri May  6 14:39:00 2016] [create] returning API error 456 (Missing mandatory element (janus))
+[Fri May  6 14:39:23 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"session_id":0,"transaction":"create","janus":"create"}
+[Fri May  6 14:39:23 2016] Creating new session: 1273215237
+Exiting... wait!!
+[Fri May  6 14:40:13 2016] Shutting down...
+[Fri May  6 14:40:13 2016] ps_websockets_thread: thread ended
+[Fri May  6 14:40:13 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri May  6 14:40:13 2016] Transport gone (0x86a8680)...
+[Fri May  6 14:40:13 2016] Websocket destroyed
+[Fri May  6 14:40:13 2016] Destroying sessions...
+[Fri May  6 14:40:13 2016] Freeing crypto resources..
+[Fri May  6 14:40:13 2016] Cleaning SDP structures..
+[Fri May  6 14:40:13 2016] De-initializing SCTP..
+[Fri May  6 14:40:13 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 14:53:41 2016] Autodetecting local IP...
+[Fri May  6 14:53:41 2016] Local IP is 10.0.2.4
+[Fri May  6 14:53:41 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 14:53:41 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 14:53:41 2016] BUNDLE is NOT going to be forced
+[Fri May  6 14:53:41 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 14:53:41 2016]   -- RTCP component blackhole socket bound to port 47863
+[Fri May  6 14:53:41 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 14:53:41 2016] ICE handles watchdog started
+[Fri May  6 14:53:41 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 14:53:41 2016] Session watchdog started...
+[Fri May  6 14:53:41 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 14:53:48 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"session_id":0,"transaction":"create","janus":"create"}
+[Fri May  6 14:53:48 2016] Creating new session: 3421998331
+[Fri May  6 14:54:49 2016] Timeout expired for session 3421998331...
+[Fri May  6 14:54:52 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:94] Cleaning up session 3421998331...
+[Fri May  6 14:54:52 2016] Destroying session: 3421998331
+Exiting... wait!!
+[Fri May  6 15:25:56 2016] Shutting down...
+[Fri May  6 15:25:56 2016] ps_websockets_thread: thread ended
+[Fri May  6 15:25:56 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri May  6 15:25:56 2016] Transport gone (0x87db670)...
+[Fri May  6 15:25:56 2016] Websocket destroyed
+[Fri May  6 15:25:56 2016] Destroying sessions...
+[Fri May  6 15:25:56 2016] Freeing crypto resources..
+[Fri May  6 15:25:56 2016] Cleaning SDP structures..
+[Fri May  6 15:25:56 2016] De-initializing SCTP..
+[Fri May  6 15:25:56 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Fri May  6 15:26:28 2016] Autodetecting local IP...
+[Fri May  6 15:26:28 2016] Local IP is 10.0.2.4
+[Fri May  6 15:26:28 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Fri May  6 15:26:28 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Fri May  6 15:26:28 2016] BUNDLE is NOT going to be forced
+[Fri May  6 15:26:28 2016] rtcp-mux is NOT going to be forced
+[Fri May  6 15:26:28 2016]   -- RTCP component blackhole socket bound to port 43694
+[Fri May  6 15:26:28 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Fri May  6 15:26:28 2016] ICE handles watchdog started
+[Fri May  6 15:26:28 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Fri May  6 15:26:29 2016] Session watchdog started...
+[Fri May  6 15:26:29 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Fri May  6 15:26:34 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"session_id":0,"transaction":"create","janus":"create"}
+[Fri May  6 15:26:34 2016] Creating new session: 2270337002
+[Fri May  6 15:27:35 2016] Timeout expired for session 2270337002...
+[Fri May  6 15:27:38 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:94] Cleaning up session 2270337002...
+[Fri May  6 15:27:38 2016] Destroying session: 2270337002
+Exiting... wait!!
+[Fri May  6 15:28:05 2016] Shutting down...
+[Fri May  6 15:28:05 2016] ps_websockets_thread: thread ended
+[Fri May  6 15:28:05 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Fri May  6 15:28:05 2016] Transport gone (0xb59143b0)...
+[Fri May  6 15:28:05 2016] Websocket destroyed
+[Fri May  6 15:28:05 2016] Destroying sessions...
+[Fri May  6 15:28:05 2016] Freeing crypto resources..
+[Fri May  6 15:28:05 2016] Cleaning SDP structures..
+[Fri May  6 15:28:05 2016] De-initializing SCTP..
+[Fri May  6 15:28:05 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Mon May  9 09:13:55 2016] Autodetecting local IP...
+[Mon May  9 09:13:55 2016] Local IP is 10.0.2.4
+[Mon May  9 09:13:55 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Mon May  9 09:13:55 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Mon May  9 09:13:55 2016] BUNDLE is NOT going to be forced
+[Mon May  9 09:13:55 2016] rtcp-mux is NOT going to be forced
+[Mon May  9 09:13:55 2016]   -- RTCP component blackhole socket bound to port 33553
+[Mon May  9 09:13:55 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Mon May  9 09:13:55 2016] ICE handles watchdog started
+[Mon May  9 09:13:55 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Mon May  9 09:13:55 2016] Session watchdog started...
+[Mon May  9 09:13:55 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Mon May  9 09:16:18 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Mon May  9 09:16:18 2016] Creating new session: 1275695765
+[Mon May  9 09:17:20 2016] Timeout expired for session 1275695765...
+[Mon May  9 09:17:23 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:95] Cleaning up session 1275695765...
+[Mon May  9 09:17:23 2016] Destroying session: 1275695765
+[Mon May  9 09:19:27 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc"}
+[Mon May  9 09:19:27 2016] [abc] returning API error 457 (Unhandled request 'attach' at this path)
+[Mon May  9 09:19:50 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Mon May  9 09:19:50 2016] Creating new session: 3555058572
+[Mon May  9 09:20:11 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc"}
+[Mon May  9 09:20:11 2016] [abc] returning API error 457 (Unhandled request 'attach' at this path)
+[Mon May  9 09:20:52 2016] Timeout expired for session 3555058572...
+[Mon May  9 09:20:55 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:95] Cleaning up session 3555058572...
+[Mon May  9 09:20:55 2016] Destroying session: 3555058572
+[Mon May  9 09:25:14 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Mon May  9 09:25:14 2016] Creating new session: 3270190217
+[Mon May  9 09:25:54 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":3270190217,"plugin":"test"}
+[Mon May  9 09:25:54 2016] [abc] returning API error 460 (No such plugin 'test')
+[Mon May  9 09:26:22 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"destroy","transaction":"abc","session_id":3270190217,"plugin":"test"}
+[Mon May  9 09:26:26 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:95] Cleaning up session 3270190217...
+[Mon May  9 09:26:26 2016] Destroying session: 3270190217
+Exiting... wait!!
+[Mon May  9 09:27:55 2016] Shutting down...
+[Mon May  9 09:27:55 2016] ps_websockets_thread: thread ended
+[Mon May  9 09:27:55 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Mon May  9 09:27:55 2016] Transport gone (0x8d9e710)...
+[MHello!
+[Mon May  9 10:38:04 2016] Autodetecting local IP...
+[Mon May  9 10:38:04 2016] Local IP is 10.0.2.4
+[Mon May  9 10:38:04 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Mon May  9 10:38:04 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Mon May  9 10:38:04 2016] BUNDLE is NOT going to be forced
+[Mon May  9 10:38:04 2016] rtcp-mux is NOT going to be forced
+[Mon May  9 10:38:04 2016]   -- RTCP component blackhole socket bound to port 39941
+[Mon May  9 10:38:04 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Mon May  9 10:38:04 2016] ICE handles watchdog started
+[Mon May  9 10:38:04 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Mon May  9 10:38:04 2016] Session watchdog started...
+[Mon May  9 10:38:04 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Mon May  9 10:39:17 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","session_id":34,"plugin":"test"}
+[Mon May  9 10:39:17 2016] [(null)] returning API error 456 (Missing mandatory element (transaction))
+[Mon May  9 10:39:37 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","session_id":34,"plugin":"test","transaction":"abc"}
+[Mon May  9 10:39:37 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:ps_process_incoming_request:343] Couldn't find session 34...
+[Mon May  9 10:39:37 2016] [abc] returning API error 458 (No such session 34)
+[Mon May  9 10:39:58 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","session_id":34,"plugin":"test","transaction":"abc"}
+[Mon May  9 10:39:58 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:ps_process_incoming_request:343] Couldn't find session 34...
+[Mon May  9 10:39:58 2016] [abc] returning API error 458 (No such session 34)
+[Mon May  9 10:40:22 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","plugin":"test","transaction":"abc"}
+[Mon May  9 10:40:22 2016] Creating new session: 794947063
+[Mon May  9 10:40:47 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"destroy","session_id":794947063,"plugin":"test","transaction":"abc"}
+[Mon May  9 10:40:50 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:95] Cleaning up session 794947063...
+[Mon May  9 10:40:50 2016] Destroying session: 794947063
+[Mon May  9 13:11:00 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"destroy","session_id":794947063,"plugin":"test","transaction":"abc"}
+[Mon May  9 13:11:00 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:ps_process_incoming_request:343] Couldn't find session 794947063...
+[Mon May  9 13:11:00 2016] [abc] returning API error 458 (No such session 794947063)
+[Mon May  9 13:11:13 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","session_id":34,"plugin":"test","transaction":"abc"}
+[Mon May  9 13:11:13 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:ps_process_incoming_request:343] Couldn't find session 34...
+[Mon May  9 13:11:13 2016] [abc] returning API error 458 (No such session 34)
+[Mon May  9 13:11:21 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","plugin":"test","transaction":"abc"}
+[Mon May  9 13:11:21 2016] Creating new session: 2521316031
+[Mon May  9 13:11:37 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","session_id":2521316031,"plugin":"test","transaction":"abc"}
+[Mon May  9 13:11:37 2016] [abc] returning API error 460 (No such plugin 'test')
+[Mon May  9 13:11:48 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","session_id":2521316031,"plugin":"gstreamer","transaction":"abc"}
+[Mon May  9 13:11:48 2016] [abc] returning API error 460 (No such plugin 'gstreamer')
+[Mon May  9 13:12:21 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"destroy","session_id":2521316031,"plugin":"gstreamer","transaction":"abcd"}
+[Mon May  9 13:12:24 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:95] Cleaning up session 2521316031...
+[Mon May  9 13:12:24 2016] Destroying session: 2521316031
+[Mon May  9 13:13:01 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Mon May  9 13:13:01 2016] Transport gone (0x82dd6a0)...
+Exiting... wait!!
+[Mon May  9 13:13:13 2016] Shutting down...
+[Mon May  9 13:13:13 2016] ps_websockets_thread: thread ended
+[Mon May  9 13:13:13 2016] Websocket destroyed
+[Mon May  9 13:13:13 2016] Destroying sessions...
+[Mon May  9 13:13:13 2016] Freeing crypto resources..
+[Mon May  9 13:13:13 2016] Cleaning SDP structures..
+[Mon May  9 13:13:13 2016] De-initializing SCTP..
+[Mon May  9 13:13:13 2016] Ending ICE handles watchdog mainloop...
+Bye!
+Hello!
+[Wed May 11 11:52:42 2016] Autodetecting local IP...
+[Wed May 11 11:52:42 2016] Local IP is 10.0.2.4
+[Wed May 11 11:52:42 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 11:52:42 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 11:52:42 2016] BUNDLE is NOT going to be forced
+[Wed May 11 11:52:42 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 11:52:42 2016]   -- RTCP component blackhole socket bound to port 50572
+[Wed May 11 11:52:42 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 11:52:42 2016] ICE handles watchdog started
+[Wed May 11 11:52:42 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 11:52:42 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:main:814] Couldn't load libpsgstreamer.so: /usr/local/lib/libpsgstreamer.so: undefined symbol: ps_gstreamer_mountpoint_free
+Hello!
+[Wed May 11 11:53:25 2016] Autodetecting local IP...
+[Wed May 11 11:53:25 2016] Local IP is 10.0.2.4
+[Wed May 11 11:53:25 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 11:53:25 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 11:53:25 2016] BUNDLE is NOT going to be forced
+[Wed May 11 11:53:25 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 11:53:25 2016]   -- RTCP component blackhole socket bound to port 36174
+[Wed May 11 11:53:25 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 11:53:25 2016] ICE handles watchdog started
+[Wed May 11 11:53:25 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 11:53:25 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:main:814] Couldn't load libpsgstreamer.so: /usr/local/lib/libpsgstreamer.so: undefined symbol: ps_gstreamer_mountpoint_free
+Hello!
+[Wed May 11 11:57:54 2016] Autodetecting local IP...
+[Wed May 11 11:57:54 2016] Local IP is 10.0.2.4
+[Wed May 11 11:57:54 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 11:57:54 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 11:57:54 2016] BUNDLE is NOT going to be forced
+[Wed May 11 11:57:54 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 11:57:54 2016]   -- RTCP component blackhole socket bound to port 36185
+[Wed May 11 11:57:54 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 11:57:54 2016] ICE handles watchdog started
+[Wed May 11 11:57:54 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 11:57:54 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:main:814] Couldn't load libpsgstreamer.so: /usr/local/lib/libpsgstreamer.so: undefined symbol: ps_gstreamer_relay_rtp_packet
+Hello!
+[Wed May 11 12:17:51 2016] Autodetecting local IP...
+[Wed May 11 12:17:51 2016] Local IP is 10.0.2.4
+[Wed May 11 12:17:51 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 12:17:51 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 12:17:51 2016] BUNDLE is NOT going to be forced
+[Wed May 11 12:17:51 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 12:17:51 2016]   -- RTCP component blackhole socket bound to port 35454
+[Wed May 11 12:17:51 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 12:17:51 2016] ICE handles watchdog started
+[Wed May 11 12:17:51 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 12:17:51 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:main:814] Couldn't load libpsgstreamer.so: /usr/local/lib/libpsgstreamer.so: undefined symbol: ps_gstreamer_incoming_rtp
+Hello!
+[Wed May 11 12:20:42 2016] Autodetecting local IP...
+[Wed May 11 12:20:42 2016] Local IP is 10.0.2.4
+[Wed May 11 12:20:42 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 12:20:42 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 12:20:42 2016] BUNDLE is NOT going to be forced
+[Wed May 11 12:20:42 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 12:20:42 2016]   -- RTCP component blackhole socket bound to port 46676
+[Wed May 11 12:20:42 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 12:20:42 2016] ICE handles watchdog started
+[Wed May 11 12:20:42 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 12:20:42 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:main:814] Couldn't load libpsgstreamer.so: /usr/local/lib/libpsgstreamer.so: undefined symbol: ps_gstreamer_hangup_media
+Hello!
+[Wed May 11 12:23:41 2016] Autodetecting local IP...
+[Wed May 11 12:23:41 2016] Local IP is 10.0.2.4
+[Wed May 11 12:23:41 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 12:23:41 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 12:23:41 2016] BUNDLE is NOT going to be forced
+[Wed May 11 12:23:41 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 12:23:41 2016]   -- RTCP component blackhole socket bound to port 38407
+[Wed May 11 12:23:41 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 12:23:41 2016] ICE handles watchdog started
+[Wed May 11 12:23:41 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 12:23:42 2016] PS GStreamer WebRTC plugin created![Wed May 11 12:23:42 2016] Session watchdog started...
+[Wed May 11 12:23:42 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+Exiting... wait!!
+[Wed May 11 12:25:48 2016] Shutting down...
+[Wed May 11 12:25:48 2016] ps_websockets_thread: thread ended
+[Wed May 11 12:25:48 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed May 11 12:25:48 2016] Transport gone (0x9564ed0)...
+[Wed May 11 12:25:48 2016] Websocket destroyed
+[Wed May 11 12:25:48 2016] Destroying sessions...
+[Wed May 11 12:25:48 2016] Freeing crypto resources..
+[Wed May 11 12:25:48 2016] Cleaning SDP structures..
+[Wed May 11 12:25:48 2016] De-initializing SCTP..
+[Wed May 11 12:25:48 2016] Ending ICE handles watchdog mainloop...
+[Wed May 11 12:25:48 2016] Closing plugins..
+Bye!
+Hello!
+[Wed May 11 12:25:59 2016] Autodetecting local IP...
+[Wed May 11 12:25:59 2016] Local IP is 10.0.2.4
+[Wed May 11 12:25:59 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 12:25:59 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 12:25:59 2016] BUNDLE is NOT going to be forced
+[Wed May 11 12:25:59 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 12:25:59 2016]   -- RTCP component blackhole socket bound to port 46569
+[Wed May 11 12:25:59 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 12:25:59 2016] ICE handles watchdog started
+[Wed May 11 12:25:59 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 12:25:59 2016] PS GStreamer WebRTC plugin created!
+[Wed May 11 12:25:59 2016] Session watchdog started...
+[Wed May 11 12:25:59 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+Exiting... wait!!
+[Wed May 11 12:26:04 2016] Shutting down...
+[Wed May 11 12:26:04 2016] ps_websockets_thread: thread ended
+[Wed May 11 12:26:04 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed May 11 12:26:04 2016] Transport gone (0x9b32ee0)...
+[Wed May 11 12:26:04 2016] Websocket destroyed
+[Wed May 11 12:26:04 2016] Destroying sessions...
+[Wed May 11 12:26:04 2016] Freeing crypto resources..
+[Wed May 11 12:26:04 2016] Cleaning SDP structures..
+[Wed May 11 12:26:04 2016] De-initializing SCTP..
+[Wed May 11 12:26:04 2016] Ending ICE handles watchdog mainloop...
+[Wed May 11 12:26:04 2016] Closing plugins..
+Bye!
+Hello!
+[Wed May 11 12:26:36 2016] Autodetecting local IP...
+[Wed May 11 12:26:36 2016] Local IP is 10.0.2.4
+[Wed May 11 12:26:36 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 12:26:36 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 12:26:36 2016] BUNDLE is NOT going to be forced
+[Wed May 11 12:26:36 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 12:26:36 2016]   -- RTCP component blackhole socket bound to port 47067
+[Wed May 11 12:26:36 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 12:26:36 2016] ICE handles watchdog started
+[Wed May 11 12:26:36 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 12:26:36 2016] PS GStreamer WebRTC plugin created!
+[Wed May 11 12:26:36 2016] Session watchdog started...
+[Wed May 11 12:26:36 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Wed May 11 12:27:28 2016] LWS_CALLBACK_CLIENT_RECEIVE: hi
+[Wed May 11 12:27:28 2016] [(null)] returning API error 456 (Missing mandatory element (transaction))
+[Wed May 11 12:34:47 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"info"}
+[Wed May 11 12:34:47 2016] [(null)] returning API error 456 (Missing mandatory element (transaction))
+[Wed May 11 12:34:56 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"message"}
+[Wed May 11 12:34:56 2016] [(null)] returning API error 456 (Missing mandatory element (transaction))
+[Wed May 11 12:35:43 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Wed May 11 12:35:43 2016] Creating new session: 1559495295
+[Wed May 11 12:36:05 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":1559495295}
+[Wed May 11 12:36:05 2016] [abc] returning API error 456 (Missing mandatory element (plugin))
+[Wed May 11 12:36:30 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":1559495295,"plugin":"ps.plugin.webrtc"}
+[Wed May 11 12:36:30 2016] [abc] returning API error 460 (No such plugin 'ps.plugin.webrtc')
+[Wed May 11 12:37:16 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":1559495295,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 12:37:16 2016] Creating new handle in session 1559495295: 789152977
+[Wed May 11 12:37:16 2016] [abc] returning API error 461 (Couldn't attach to plugin: error '-1')
+[Wed May 11 12:38:16 2016] Timeout expired for session 1559495295...
+[Wed May 11 12:38:19 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:96] Cleaning up session 1559495295...
+[Wed May 11 12:38:19 2016] Destroying session: 1559495295
+Exiting... wait!!
+[Wed May 11 12:49:52 2016] Shutting down...
+[Wed May 11 12:49:52 2016] ps_websockets_thread: thread ended
+[Wed May 11 12:49:52 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed May 11 12:49:52 2016] Transport gone (0x9824ee0)...
+[Wed May 11 12:49:52 2016] Websocket destroyed
+[Wed May 11 12:49:52 2016] Destroying sessions...
+[Wed May 11 12:49:52 2016] Freeing crypto resources..
+[Wed May 11 12:49:52 2016] Cleaning SDP structures..
+[Wed May 11 12:49:52 2016] De-initializing SCTP..
+[Wed May 11 12:49:52 2016] Ending ICE handles watchdog mainloop...
+[Wed May 11 12:49:52 2016] Closing plugins..
+Bye!
+Hello!
+[Wed May 11 12:50:16 2016] Autodetecting local IP...
+[Wed May 11 12:50:16 2016] Local IP is 10.0.2.4
+[Wed May 11 12:50:16 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 12:50:16 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 12:50:16 2016] BUNDLE is NOT going to be forced
+[Wed May 11 12:50:16 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 12:50:16 2016]   -- RTCP component blackhole socket bound to port 48053
+[Wed May 11 12:50:16 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 12:50:16 2016] ICE handles watchdog started
+[Wed May 11 12:50:17 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 12:50:17 2016] PS GStreamer WebRTC plugin created!
+[Wed May 11 12:50:17 2016] Session watchdog started...
+[Wed May 11 12:50:17 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Wed May 11 12:50:26 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":1559495295,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 12:50:26 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:ps_process_incoming_request:344] Couldn't find session 1559495295...
+[Wed May 11 12:50:26 2016] [abc] returning API error 458 (No such session 1559495295)
+[Wed May 11 12:50:34 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Wed May 11 12:50:34 2016] Creating new session: 2060804696
+[Wed May 11 12:50:52 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":2060804696,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 12:50:52 2016] Creating new handle in session 2060804696: 2533248886
+[Wed May 11 12:50:52 2016] [33m[WARN][0m plugin not initialized..
+[Wed May 11 12:50:52 2016] [abc] returning API error 461 (Couldn't attach to plugin: error '-1')
+Exiting... wait!!
+[Wed May 11 12:52:17 2016] Shutting down...
+[Wed May 11 12:52:17 2016] ps_websockets_thread: thread ended
+[Wed May 11 12:52:17 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed May 11 12:52:17 2016] Transport gone (0x96f7ee0)...
+[Wed May 11 12:52:17 2016]  -- Marking sesion 2060804696 as over 
+[Wed May 11 12:52:17 2016] Websocket destroyed
+[Wed May 11 12:52:17 2016] Destroying sessions...
+[Wed May 11 12:52:17 2016] Freeing crypto resources..
+[Wed May 11 12:52:17 2016] Cleaning SDP structures..
+[Wed May 11 12:52:17 2016] De-initializing SCTP..
+[Wed May 11 12:52:17 2016] Ending ICE handles watchdog mainloop...
+[Wed May 11 12:52:17 2016] Closing plugins..
+Bye!
+Hello!
+[Wed May 11 12:52:27 2016] Autodetecting local IP...
+[Wed May 11 12:52:27 2016] Local IP is 10.0.2.4
+[Wed May 11 12:52:27 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 12:52:27 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 12:52:27 2016] BUNDLE is NOT going to be forced
+[Wed May 11 12:52:27 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 12:52:27 2016]   -- RTCP component blackhole socket bound to port 54439
+[Wed May 11 12:52:27 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 12:52:27 2016] ICE handles watchdog started
+[Wed May 11 12:52:27 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 12:52:27 2016] PS GStreamer WebRTC plugin created!
+[Wed May 11 12:52:27 2016] [33m[WARN][0m should have created a mount point here
+[Wed May 11 12:52:27 2016] PS GStreamer WebRTC plugin initialized
+[Wed May 11 12:52:27 2016] Joining streaming handler thread..
+[Wed May 11 12:52:27 2016] Streaming watchdog started
+[Wed May 11 12:52:27 2016] Session watchdog started...
+[Wed May 11 12:52:27 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Wed May 11 12:52:36 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Wed May 11 12:52:36 2016] Creating new session: 1261212395
+[Wed May 11 12:52:54 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":1261212395,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 12:52:54 2016] Creating new handle in session 1261212395: 4231679761
+[Wed May 11 12:57:55 2016] Timeout expired for session 1261212395...
+[Wed May 11 12:57:58 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:96] Cleaning up session 1261212395...
+[Wed May 11 12:57:58 2016] Destroying session: 1261212395
+[Wed May 11 12:57:58 2016] Detaching handle from PS GStreamer WebRTC plugin
+[Wed May 11 12:57:58 2016] Removing streaming session...
+[Wed May 11 12:57:58 2016] [4231679761] Sending event to transport...
+[Wed May 11 12:57:58 2016] [4231679761] Handle detached (error=0), scheduling destruction
+[Wed May 11 12:57:58 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:57:59 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:57:59 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:00 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:00 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:01 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:01 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:02 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:02 2016] Cleaning up handle 4231679761...
+[Wed May 11 12:58:02 2016] [4231679761] WebRTC resources freed
+[Wed May 11 12:58:02 2016] [4231679761] Handle and related resources freed
+[Wed May 11 12:58:02 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:03 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:03 2016] Checking 1 old Streaming sessions...
+[Wed May 11 12:58:03 2016] Freeing old Streaming session
+[Wed May 11 13:52:51 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Wed May 11 13:52:51 2016] Creating new session: 2308293364
+[Wed May 11 13:53:24 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"keep-alive","transaction":"abc","session_id":2308293364,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:53:24 2016] [abc] returning API error 453 (Unknown request 'keep-alive')
+[Wed May 11 13:53:37 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"keepalive","transaction":"abc","session_id":2308293364,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:53:37 2016] Got a keep-alive on session 2308293364
+[Wed May 11 13:53:50 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"keepalive","transaction":"abc","session_id":2308293364,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:53:50 2016] Got a keep-alive on session 2308293364
+[Wed May 11 13:54:20 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"attach","transaction":"abc","session_id":2308293364,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:54:20 2016] Creating new handle in session 2308293364: 662931127
+[Wed May 11 13:54:59 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"message","transaction":"abc","session_id":2308293364,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:55:23 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"message","transaction":"abc","session_id":2308293364,"handle_id":662931127,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:56:08 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"destroy","transaction":"abc","session_id":2308293364,"handle_id":662931127,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:56:08 2016] [abc] returning API error 457 (Unhandled request 'destroy' at this path)
+[Wed May 11 13:56:25 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"detach","transaction":"abc","session_id":2308293364,"handle_id":662931127,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:56:25 2016] Detaching handle from PS GStreamer WebRTC plugin
+[Wed May 11 13:56:25 2016] Removing streaming session...
+[Wed May 11 13:56:25 2016] [662931127] Sending event to transport...
+[Wed May 11 13:56:25 2016] Sending event to 0xb5913bd0
+[Wed May 11 13:56:25 2016] [662931127] Handle detached (error=0), scheduling destruction
+[Wed May 11 13:56:25 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:26 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:26 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:27 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:27 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:28 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:28 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:28 2016] Cleaning up handle 662931127...
+[Wed May 11 13:56:28 2016] [662931127] WebRTC resources freed
+[Wed May 11 13:56:28 2016] [662931127] Handle and related resources freed
+[Wed May 11 13:56:29 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:29 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:30 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:30 2016] Checking 1 old Streaming sessions...
+[Wed May 11 13:56:30 2016] Freeing old Streaming session
+[Wed May 11 13:56:46 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"destroy","transaction":"abc","session_id":2308293364,"handle_id":662931127,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:56:46 2016] [31m[ERR][0m [/home/osboxes/client/psclient/psclient.c:ps_process_incoming_request:353] Couldnt find any handle 662931127 in session 2308293364...
+[Wed May 11 13:56:46 2016] [abc] returning API error 459 (No such handle 662931127 in session 2308293364)
+[Wed May 11 13:57:01 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"destroy","transaction":"abc","session_id":2308293364,"plugin":"ps.plugin.gstreamer"}
+[Wed May 11 13:57:04 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:96] Cleaning up session 2308293364...
+[Wed May 11 13:57:04 2016] Destroying session: 2308293364
+Exiting... wait!!
+[Wed May 11 13:58:09 2016] Shutting down...
+[Wed May 11 13:58:09 2016] ps_websockets_thread: thread ended
+[Wed May 11 13:58:09 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed May 11 13:58:09 2016] Transport gone (0xb5913bd0)...
+[Wed May 11 13:58:09 2016] Websocket destroyed
+[Wed May 11 13:58:09 2016] Destroying sessions...
+[Wed May 11 13:58:09 2016] Freeing crypto resources..
+[Wed May 11 13:58:09 2016] Cleaning SDP structures..
+[Wed May 11 13:58:09 2016] De-initializing SCTP..
+[Wed May 11 13:58:09 2016] Ending ICE handles watchdog mainloop...
+[Wed May 11 13:58:09 2016] Closing plugins..
+[Wed May 11 13:58:09 2016] Leaving streaming handler thread..
+Hello!
+[Wed May 11 14:39:25 2016] Autodetecting local IP...
+[Wed May 11 14:39:25 2016] Local IP is 10.0.2.4
+[Wed May 11 14:39:25 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 14:39:25 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 14:39:25 2016] BUNDLE is NOT going to be forced
+[Wed May 11 14:39:25 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 14:39:25 2016]   -- RTCP component blackhole socket bound to port 56039
+[Wed May 11 14:39:25 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 14:39:25 2016] ICE handles watchdog started
+[Wed May 11 14:39:25 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 14:39:25 2016] PS GStreamer WebRTC plugin created!
+[Wed May 11 14:39:25 2016] [33m[WARN][0m should have created a mount point here
+[Wed May 11 14:39:25 2016] PS GStreamer WebRTC plugin initialized
+[Wed May 11 14:39:25 2016] Joining streaming handler thread..
+[Wed May 11 14:39:25 2016] Streaming watchdog started
+[Wed May 11 14:39:25 2016] Session watchdog started...
+[Wed May 11 14:39:25 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+[Wed May 11 14:39:43 2016] LWS_CALLBACK_CLIENT_RECEIVE: {"janus":"create","transaction":"abc"}
+[Wed May 11 14:39:43 2016] Creating new session: 1452276573
+[Wed May 11 14:44:43 2016] Timeout expired for session 1452276573...
+[Wed May 11 14:44:46 2016] [/home/osboxes/client/psclient/psclient.c:ps_cleanup_session:96] Cleaning up session 1452276573...
+[Wed May 11 14:44:46 2016] Destroying session: 1452276573
+Exiting... wait!!
+[Wed May 11 14:51:39 2016] Shutting down...
+[Wed May 11 14:51:39 2016] ps_websockets_thread: thread ended
+[Wed May 11 14:51:39 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed May 11 14:51:39 2016] Transport gone (0xb5a13bd0)...
+[Wed May 11 14:51:39 2016] Websocket destroyed
+[Wed May 11 14:51:39 2016] Destroying sessions...
+[Wed May 11 14:51:39 2016] Freeing crypto resources..
+[Wed May 11 14:51:39 2016] Cleaning SDP structures..
+[Wed May 11 14:51:39 2016] De-initializing SCTP..
+[Wed May 11 14:51:39 2016] Ending ICE handles watchdog mainloop...
+[Wed May 11 14:51:39 2016] Closing plugins..
+[Wed May 11 14:51:39 2016] Leaving streaming handler thread..
+Hello!
+[Wed May 11 14:51:42 2016] Autodetecting local IP...
+[Wed May 11 14:51:42 2016] Local IP is 10.0.2.4
+[Wed May 11 14:51:42 2016] Initializing ICE stuff (Full mode, ICE-TCP candidates disabled, IPv6 support disabled)
+[Wed May 11 14:51:42 2016] [33m[WARN][0m Client working on private address (10.0.2.4), but didn't specify any STUN server
+[Wed May 11 14:51:42 2016] BUNDLE is NOT going to be forced
+[Wed May 11 14:51:42 2016] rtcp-mux is NOT going to be forced
+[Wed May 11 14:51:42 2016]   -- RTCP component blackhole socket bound to port 46905
+[Wed May 11 14:51:42 2016] using certificates: 
+	/home/osboxes/client/psclient/pscert.pem
+	/home/osboxes/client/psclient/pscert.key
+[Wed May 11 14:51:42 2016] ICE handles watchdog started
+[Wed May 11 14:51:42 2016] Fingerprint of our certificate: A4:95:F3:92:7C:A6:F9:21:96:3C:95:CF:9D:2E:5A:E2:73:55:0E:07:D8:2A:02:A8:1E:95:67:5E:F4:5A:FD:5B
+[Wed May 11 14:51:42 2016] PS GStreamer WebRTC plugin created!
+[Wed May 11 14:51:42 2016] [33m[WARN][0m should have created a mount point here
+[Wed May 11 14:51:42 2016] PS GStreamer WebRTC plugin initialized
+[Wed May 11 14:51:42 2016] Streaming watchdog started
+[Wed May 11 14:51:42 2016] Joining streaming handler thread..
+[Wed May 11 14:51:42 2016] Session watchdog started...
+[Wed May 11 14:51:42 2016] LWS_CALLBACK_CLIENT_ESTABLISHED
+Exiting... wait!!
+[Wed May 11 14:51:46 2016] Shutting down...
+[Wed May 11 14:51:46 2016] ps_websockets_thread: thread ended
+[Wed May 11 14:51:46 2016] LWS_CALLBACK_CLOSED: Websocket connection closed 
+[Wed May 11 14:51:46 2016] Transport gone (0xb5913bd0)...
+[Wed May 11 14:51:46 2016] Websocket destroyed
+[Wed May 11 14:51:46 2016] Destroying sessions...
+[Wed May 11 14:51:46 2016] Freeing crypto resources..
+[Wed May 11 14:51:46 2016] Cleaning SDP structures..
+[Wed May 11 14:51:46 2016] De-initializing SCTP..
+[Wed May 11 14:51:46 2016] Ending ICE handles watchdog mainloop...
+[Wed May 11 14:51:46 2016] Closing plugins..
+[Wed May 11 14:51:46 2016] Leaving streaming handler thread..
