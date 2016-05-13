@@ -1,1 +1,4 @@
-Integrate gstreamer webrtc client and websocket signaling using libwebsocket
+The aim is to create a simplest possible standalone webrtc client, using janus-gateway.
+This primarily means, creating a transport plugin that acts as a websocket client.
+
+
