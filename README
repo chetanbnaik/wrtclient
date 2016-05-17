@@ -1,4 +1,4 @@
-The aim is to create a simplest possible standalone webrtc client, using <a href="https://github.com/meetecho/janus-gateway">janus-gateway</a>.
+The aim is to create a simplest possible standalone webrtc client, using [janus-gateway](https://github.com/meetecho/janus-gateway).
 This primarily means, creating a transport plugin that acts as a websocket client.
 
 
