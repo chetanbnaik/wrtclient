@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <sys/poll.h>
 #include <sys/time.h>
+#include <gst/gst.h>
 
 #include "ps_gstreamer.h"
 #include "../apierror.h"
@@ -11,23 +12,6 @@
 #include "../rtp.h"
 #include "../rtcp.h"
 #include "../utils.h"
-
-ps_plugin_result * ps_plugin_result_new (ps_plugin_result_type type, const char * content) {
-	PS_LOG (LOG_HUGE, "Creating plugin result...\n");
-	ps_plugin_result * result = (ps_plugin_result *)g_malloc0(sizeof(ps_plugin_result));
-	if (result == NULL) return NULL;
-	
-	result->type = type;
-	result->content = content ? g_strdup(content) : NULL;
-	return result;
-}
-
-void ps_plugin_result_destroy (ps_plugin_result * result) {
-	PS_LOG (LOG_HUGE, "Destroying plugin result...\n");
-	if (result == NULL) return ;
-	g_free (result->content);
-	g_free (result);
-}
 
 /* plugin information */
 #define PS_GSTREAMER_VERSION			1
@@ -117,12 +101,10 @@ typedef struct ps_gstreamer_rtp_keyframe {
 } ps_gstreamer_rtp_keyframe;
 
 typedef struct ps_gstreamer_rtp_source {
-	gint audio_port;
-	in_addr_t audio_mcast;
-	gint video_port;
-	in_addr_t video_mcast;
-	int audio_fd;
-	int video_fd;
+	GstElement * vsource, * vfilter, * vencoder, * vrtppay, * vsink; 
+	GstElement * asource, * afilter, * aencoder, * artppay, * asink; 
+	GstElement * pipeline;
+	GstCaps * afiltercaps, * vfiltercaps;
 	gint64 last_received_video;
 	gint64 last_received_audio;
 	ps_gstreamer_rtp_keyframe keyframe;
@@ -164,8 +146,8 @@ ps_mutex mountpoints_mutex;
 static void ps_gstreamer_mountpoint_free (ps_gstreamer_mountpoint * mp);
 ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 		uint64_t id, char *name, char *desc,
-		gboolean doaudio, char* amcast, uint16_t aport, uint8_t acodec, char *artpmap, char *afmtp,
-		gboolean dovideo, char* vmcast, uint16_t vport, uint8_t vcodec, char *vrtpmap, char *vfmtp, gboolean bufferkf);
+		gboolean doaudio, char * asrcname, uint8_t acodec, char *artpmap, char *afmtp,
+		gboolean dovideo, char * vsrcname, uint8_t vcodec, char *vrtpmap, char *vfmtp, gboolean bufferkf);
 
 typedef struct ps_gstreamer_message {
 	ps_plugin_session * handle;
@@ -179,6 +161,7 @@ static ps_gstreamer_message exit_message;
 
 static void ps_gstreamer_message_free (ps_gstreamer_message * msg) {
 	if (!msg || msg == &exit_message) return;
+	msg->handle == NULL;
 	g_free (msg->transaction);
 	msg->transaction = NULL;
 	if (msg->message) json_decref(msg->message);
@@ -988,7 +971,7 @@ static void ps_gstreamer_rtp_source_free (ps_gstreamer_rtp_source * source) {
 }
 
 static void ps_gstreamer_mountpoint_free (ps_gstreamer_mountpoint * mp) {
-	mp-> destroyed = ps_get_monotonic_time();
+	mp->destroyed = ps_get_monotonic_time();
 	
 	g_free(mp->name);
 	g_free(mp->description);
@@ -1010,14 +993,154 @@ static void ps_gstreamer_mountpoint_free (ps_gstreamer_mountpoint * mp) {
 
 ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 		uint64_t id, char *name, char *desc,
-		gboolean doaudio, char* amcast, uint16_t aport, uint8_t acodec, char *artpmap, char *afmtp,
-		gboolean dovideo, char* vmcast, uint16_t vport, uint8_t vcodec, char *vrtpmap, char *vfmtp, gboolean bufferkf) {
-	//ps_gstreamer_mountpoint * live_rtp = g_malloc0 (sizeof(ps_gstreamer_mountpoint));
-	ps_gstreamer_mountpoint * live_rtp = NULL;
+		gboolean doaudio, char * asrcname, uint8_t acodec, char *artpmap, char *afmtp,
+		gboolean dovideo, char * vsrcname, uint8_t vcodec, char *vrtpmap, char *vfmtp, gboolean bufferkf) {
+	ps_mutex_lock (&mountpoints_mutex);
+	ps_gstreamer_mountpoint * live_rtp = g_malloc0 (sizeof(ps_gstreamer_mountpoint));
+	if (live_rtp == NULL) {
+		PS_LOG (LOG_FATAL, "Memory error\n");
+		ps_mutex_unlock (&mountpoints_mutex);
+		return NULL;
+	}
+	live_rtp->id = id;
+	live_rtp->name = g_strdup (name);
+	live_rtp->description = g_strdup (name);
+	live_rtp->enabled = TRUE;
+	live_rtp->active = FALSE;
+	live_rtp->streamer_type = ps_gstreamer_type_live;
+	live_rtp->streamer_source = ps_gstreamer_source_rtp;
+	ps_gstreamer_rtp_source * live_rtp_source = g_malloc0 (sizeof(ps_gstreamer_rtp_source));
+	if (live_rtp->name == NULL || live_rtp->description == NULL || live_rtp_source == NULL) {
+		PS_LOG (LOG_FATAL, "Memory error\n");
+		if (live_rtp->name) g_free(live_rtp->name);
+		if (live_rtp->description) g_free(live_rtp->description);
+		if (live_rtp_source) g_free(live_rtp_source);
+		g_free (live_rtp);
+		ps_mutex_unlock (&mountpoints_mutex);
+		return NULL;
+	}
+	/* initialize gstreamer */
+	gst_init (NULL, NULL);
+	live_rtp_source->asource = gst_element_factory_make(asrcname, "asource");
+	live_rtp_source->afilter = gst_element_factory_make("capsfilter", "afilter");
+	live_rtp_source->aencoder = gst_element_factory_make("opusenc", "aencoder");
+	live_rtp_source->artppay = gst_element_factory_make("rtpopuspay", "artppay");
+	live_rtp_source->asink = gst_element_factory_make("appsink","asink");
+	if (dovideo) {
+		live_rtp_source->vsource = gst_element_factory_make(vsrcname, "vsource");
+		live_rtp_source->vfilter = gst_element_factory_make("capsfilter", "vfilter");
+		if (strstr(vrtpmap, "vp8") || strstr(vrtpmap, "VP8")) {
+			live_rtp_source->vencoder = gst_element_factory_make("vp8enc", "vencoder");
+			live_rtp_source->vrtppay = gst_element_factory_make("rtpvp8pay", "vrtppay");
+		} else if (strstr(vrtpmap, "h264") || strstr(vrtpmap, "H264")) {
+			live_rtp_source->vencoder = gst_element_factory_make("x264enc", "vencoder");
+			live_rtp_source->vrtppay = gst_element_factory_make("rtph264pay", "vrtppay");
+		}
+		live_rtp_source->vsink = gst_element_factory_make("appsink","vsink");
+	}
+	live_rtp_source->afiltercaps = gst_caps_new_simple ("audio/x-raw",
+									"channels", G_TYPE_INT, 1,
+									"rate", G_TYPE_INT, 16000,
+									NULL);
+	live_rtp_source->vfiltercaps = gst_caps_new_simple ("video/x-raw",
+									"format", G_TYPE_STRING, "RGB",
+									"width", G_TYPE_INT, 480,
+									"height", G_TYPE_INT, 360,
+									"framerate", GST_TYPE_FRACTION, 30, 1,
+									NULL);
+	g_object_set (live_rtp_source->afilter, "caps", live_rtp_source->afiltercaps, NULL);
+	g_object_set (live_rtp_source->vfilter, "caps", live_rtp_source->vfiltercaps, NULL);
+	gst_caps_unref (live_rtp_source->afiltercaps);
+	gst_caps_unref (live_rtp_source->vfiltercaps);
+	
+	live_rtp_source->pipeline = gst_pipeline_new ("pipeline");
+	gst_bin_add_many (GST_BIN (live_rtp_source->pipeline), live_rtp_source->asource, 
+		live_rtp_source->afilter, live_rtp_source->aencoder, live_rtp_source->artppay,
+		live_rtp_source->asink, live_rtp_source->vsource, live_rtp_source->vfilter,
+		live_rtp_source->vencoder, live_rtp_source->vrtppay, live_rtp_source->vsink);
+	if ((gst_element_link_many (live_rtp_source->asource, live_rtp_source->afilter, live_rtp_source->aencoder, live_rtp_source->artppay, live_rtp_source->asink) != TRUE ) 
+		|| (gst_element_link_many (live_rtp_source->vsource, live_rtp_source->vfilter, live_rtp_source->vencoder, live_rtp_source->vrtppay, live_rtp_source->vsink) != TRUE)) 
+	{
+		PS_LOG (LOG_ERR, "Failed to link GStreamer elements\n");
+		if (live_rtp->name) g_free(live_rtp->name);
+		if (live_rtp->description) g_free(live_rtp->description);
+		if (live_rtp_source) g_free(live_rtp_source);
+		g_free (live_rtp);
+		ps_mutex_unlock (&mountpoints_mutex);
+		return NULL;
+	}
+	
+	live_rtp_source->last_received_audio = ps_get_monotonic_time();
+	live_rtp_source->last_received_video = ps_get_monotonic_time();
+	live_rtp_source->keyframe.enabled = bufferkf;
+	live_rtp_source->keyframe.latest_keyframe = NULL;
+	live_rtp_source->keyframe.temp_keyframe = NULL;
+	live_rtp_source->keyframe.temp_ts = 0;
+	ps_mutex_init (&live_rtp_source->keyframe.mutex);
+	live_rtp->source = live_rtp_source;
+	live_rtp->source_destroy = (GDestroyNotify) ps_gstreamer_rtp_source_free;
+	live_rtp->codecs.audio_pt = doaudio ? acodec : -1;
+	live_rtp->codecs.audio_rtpmap = doaudio ? g_strdup (artpmap) : NULL;
+	live_rtp->codecs.audio_fmtp = doaudio ? (afmtp ? g_strdup (artpmap) : NULL) : NULL;
+	live_rtp->codecs.video_codec = -1;
+	if(dovideo) {
+		if(strstr(vrtpmap, "vp8") || strstr(vrtpmap, "VP8"))
+			live_rtp->codecs.video_codec = PS_GSTREAMER_VP8;
+		else if(strstr(vrtpmap, "vp9") || strstr(vrtpmap, "VP9"))
+			live_rtp->codecs.video_codec = PS_GSTREAMER_VP9;
+		else if(strstr(vrtpmap, "h264") || strstr(vrtpmap, "H264"))
+			live_rtp->codecs.video_codec = PS_GSTREAMER_H264;
+	}
+	live_rtp->codecs.video_pt = dovideo ? vcodec : -1;
+	live_rtp->codecs.video_rtpmap = dovideo ? g_strdup(vrtpmap) : NULL;
+	live_rtp->codecs.video_fmtp = dovideo ? (vfmtp ? g_strdup(vfmtp) : NULL) : NULL;
+	live_rtp->listeners = NULL;
+	live_rtp->destroyed = 0;
+	ps_mutex_init (&live_rtp->mutex);
+	g_hash_table_insert (mountpoints, GINT_TO_POINTER (live_rtp->id), live_rtp);
+	ps_mutex_unlock (&mountpoints_mutex);
+	GError * error = NULL;
+	g_thread_try_new (live_rtp->name, &ps_gstreamer_relay_thread, live_rtp, &error);
+	if (error != NULL) {
+		PS_LOG(LOG_ERR, "Got error %d (%s) trying to launch the RTP thread...\n", error->code, error->message ? error->message : "??");
+		if(live_rtp->name)
+			g_free(live_rtp->name);
+		if(live_rtp->description)
+			g_free(live_rtp->description);
+		if(live_rtp_source)
+			g_free(live_rtp_source);
+		g_free(live_rtp);
+		return NULL;
+	}
 	return live_rtp;
 }
 
 static void * ps_gstreamer_relay_thread (void * data) {
+	PS_LOG (LOG_VERB, "Starting streaming relay thread\n");
+	ps_gstreamer_mountpoint * mountpoint = (ps_gstreamer_mountpoint *)data;
+	if (!mountpoint) {
+		PS_LOG (LOG_ERR, "Invalid mounpoint!\n");
+		g_thread_unref (g_thread_self());
+		return NULL;
+	}
+	if (mountpoint->streamer_source != ps_gstreamer_source_rtp) {
+		PS_LOG (LOG_ERR, "[%s] Not an RTP source mountpoint!\n", mountpoint->name);
+		g_thread_unref (g_thread_self());
+		return NULL;
+	}
+	ps_gstreamer_rtp_source * source = mountpoint->source;
+	if (source == NULL) {
+		PS_LOG (LOG_ERR, "[%s] Invalid RTP source mountpoint!\n", mountpoint->name);
+		g_thread_unref (g_thread_self());
+		return NULL;
+	}
+	char * name = g_strdup (mountpoint->name ? mountpoint->name : "??");
+	/* Needed to fix seq and ts */
+	uint32_t a_last_ssrc = 0, a_last_ts = 0, a_base_ts = 0, a_base_ts_prev = 0,
+			v_last_ssrc = 0, v_last_ts = 0, v_base_ts = 0, v_base_ts_prev = 0;
+	uint16_t a_last_seq = 0, a_base_seq = 0, a_base_seq_prev = 0,
+			v_last_seq = 0, v_base_seq = 0, v_base_seq_prev = 0;
+			
 	return NULL;
 }
 
