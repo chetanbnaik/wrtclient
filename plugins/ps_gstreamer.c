@@ -3,6 +3,7 @@
 #include <sys/poll.h>
 #include <sys/time.h>
 #include <gst/gst.h>
+#include <gst/app/gstappsink.h>
 
 #include "ps_gstreamer.h"
 #include "../apierror.h"
@@ -103,6 +104,7 @@ typedef struct ps_gstreamer_rtp_keyframe {
 typedef struct ps_gstreamer_rtp_source {
 	GstElement * vsource, * vfilter, * vencoder, * vrtppay, * vsink; 
 	GstElement * asource, * afilter, * aencoder, * artppay, * asink; 
+	GstElement * resample, * vconvert;
 	GstElement * pipeline;
 	GstCaps * afiltercaps, * vfiltercaps;
 	gint64 last_received_video;
@@ -161,7 +163,7 @@ static ps_gstreamer_message exit_message;
 
 static void ps_gstreamer_message_free (ps_gstreamer_message * msg) {
 	if (!msg || msg == &exit_message) return;
-	msg->handle == NULL;
+	msg->handle = NULL;
 	g_free (msg->transaction);
 	msg->transaction = NULL;
 	if (msg->message) json_decref(msg->message);
@@ -290,9 +292,35 @@ int ps_gstreamer_init (ps_callbacks * callback, const char * config_path) {
 	uint64_t id = 100;
 	char * name = "ps-gstreamer", * desc = "ps-gstreamer";
 	char * amcast = NULL, * vmcast = NULL;
-	
+	char * asrcname = "audiotestsrc", * vsrcname = "videotestsrc";
+	int acodec = 111, vcodec = 100;
+	char * artpmap = "opus/48000/2", * vrtpmap = "VP8/90000";
 	/* Create mountpoint here */
-	PS_LOG(LOG_WARN, "should have created a mount point here\n");
+/*ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
+		uint64_t id, char *name, char *desc,
+		gboolean doaudio, char * asrcname, uint8_t acodec, char *artpmap, char *afmtp,
+		gboolean dovideo, char * vsrcname, uint8_t vcodec, char *vrtpmap, char *vfmtp, gboolean bufferkf); */	
+	
+	mountpoints = g_hash_table_new (NULL, NULL);
+	ps_mutex_init (&mountpoints_mutex);
+	ps_gstreamer_mountpoint * mp = NULL;
+	if ((mp = ps_gstreamer_create_rtp_source (id, name, desc, 
+			  doaudio, asrcname, acodec, artpmap, NULL,
+			  dovideo, vsrcname, vcodec, vrtpmap, NULL,
+			  bufferkf)) == NULL) {
+		PS_LOG (LOG_ERR, "Error creating gstreamer source '%s'\n", name);
+	}
+	mp->is_private = is_private;
+	
+	ps_mutex_lock (&mountpoints_mutex);
+	GHashTableIter iter;
+	gpointer value;
+	g_hash_table_iter_init (&iter, mountpoints);
+	while (g_hash_table_iter_next (&iter, NULL, &value)) {
+		ps_gstreamer_mountpoint * mp = value;
+		PS_LOG (LOG_VERB, " ::: [%"SCNu64"][%s] %s\n", mp->id, mp->name, mp->description);
+	}
+	ps_mutex_unlock (&mountpoints_mutex);
 	
 	sessions = g_hash_table_new (NULL, NULL);
 	ps_mutex_init (&sessions_mutex);
@@ -967,6 +995,8 @@ static void ps_gstreamer_rtp_source_free (ps_gstreamer_rtp_source * source) {
 	}
 	source->keyframe.temp_keyframe = NULL;
 	ps_mutex_unlock (&source->keyframe.mutex);
+	gst_element_set_state (source->pipeline, GST_STATE_NULL);
+	gst_object_unref (GST_OBJECT (source->pipeline));
 	g_free (source);
 }
 
@@ -1022,13 +1052,15 @@ ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 	/* initialize gstreamer */
 	gst_init (NULL, NULL);
 	live_rtp_source->asource = gst_element_factory_make(asrcname, "asource");
+	live_rtp_source->resample = gst_element_factory_make("audioresample", "resample");
 	live_rtp_source->afilter = gst_element_factory_make("capsfilter", "afilter");
 	live_rtp_source->aencoder = gst_element_factory_make("opusenc", "aencoder");
 	live_rtp_source->artppay = gst_element_factory_make("rtpopuspay", "artppay");
-	live_rtp_source->asink = gst_element_factory_make("appsink","asink");
+	live_rtp_source->asink = gst_element_factory_make("appsink", "asink");
 	if (dovideo) {
 		live_rtp_source->vsource = gst_element_factory_make(vsrcname, "vsource");
 		live_rtp_source->vfilter = gst_element_factory_make("capsfilter", "vfilter");
+		live_rtp_source->vconvert = gst_element_factory_make ("videoconvert", "vconvert");
 		if (strstr(vrtpmap, "vp8") || strstr(vrtpmap, "VP8")) {
 			live_rtp_source->vencoder = gst_element_factory_make("vp8enc", "vencoder");
 			live_rtp_source->vrtppay = gst_element_factory_make("rtpvp8pay", "vrtppay");
@@ -1050,20 +1082,30 @@ ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 									NULL);
 	g_object_set (live_rtp_source->afilter, "caps", live_rtp_source->afiltercaps, NULL);
 	g_object_set (live_rtp_source->vfilter, "caps", live_rtp_source->vfiltercaps, NULL);
+	
+	g_object_set (live_rtp_source->asink, "max-buffers", 50, NULL);
+	g_object_set (live_rtp_source->vsink, "max-buffers", 50, NULL);
+	g_object_set (live_rtp_source->asink, "drop", TRUE, NULL);
+	g_object_set (live_rtp_source->vsink, "drop", TRUE, NULL);
+	
 	gst_caps_unref (live_rtp_source->afiltercaps);
 	gst_caps_unref (live_rtp_source->vfiltercaps);
 	
+	
 	live_rtp_source->pipeline = gst_pipeline_new ("pipeline");
-	gst_bin_add_many (GST_BIN (live_rtp_source->pipeline), live_rtp_source->asource, 
+	gst_bin_add_many (GST_BIN (live_rtp_source->pipeline), live_rtp_source->asource,
+		live_rtp_source->resample,
 		live_rtp_source->afilter, live_rtp_source->aencoder, live_rtp_source->artppay,
 		live_rtp_source->asink, live_rtp_source->vsource, live_rtp_source->vfilter,
-		live_rtp_source->vencoder, live_rtp_source->vrtppay, live_rtp_source->vsink);
-	if ((gst_element_link_many (live_rtp_source->asource, live_rtp_source->afilter, live_rtp_source->aencoder, live_rtp_source->artppay, live_rtp_source->asink) != TRUE ) 
-		|| (gst_element_link_many (live_rtp_source->vsource, live_rtp_source->vfilter, live_rtp_source->vencoder, live_rtp_source->vrtppay, live_rtp_source->vsink) != TRUE)) 
+		live_rtp_source->vconvert,
+		live_rtp_source->vencoder, live_rtp_source->vrtppay, live_rtp_source->vsink, NULL);
+	if ((gst_element_link_many (live_rtp_source->asource, live_rtp_source->resample, live_rtp_source->afilter, live_rtp_source->aencoder, live_rtp_source->artppay, live_rtp_source->asink, NULL) != TRUE ) 
+		|| (gst_element_link_many (live_rtp_source->vsource, live_rtp_source->vfilter, live_rtp_source->vconvert, live_rtp_source->vencoder, live_rtp_source->vrtppay, live_rtp_source->vsink, NULL) != TRUE)) 
 	{
 		PS_LOG (LOG_ERR, "Failed to link GStreamer elements\n");
 		if (live_rtp->name) g_free(live_rtp->name);
 		if (live_rtp->description) g_free(live_rtp->description);
+		gst_object_unref (GST_OBJECT (live_rtp_source->pipeline));
 		if (live_rtp_source) g_free(live_rtp_source);
 		g_free (live_rtp);
 		ps_mutex_unlock (&mountpoints_mutex);
@@ -1140,7 +1182,97 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			v_last_ssrc = 0, v_last_ts = 0, v_base_ts = 0, v_base_ts_prev = 0;
 	uint16_t a_last_seq = 0, a_base_seq = 0, a_base_seq_prev = 0,
 			v_last_seq = 0, v_base_seq = 0, v_base_seq_prev = 0;
-			
+	
+	/* Loop */
+	int num = 0, bytes = 0;
+	gst_element_set_state (source->pipeline, GST_STATE_PLAYING);
+	if (gst_element_get_state (source->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+		PS_LOG (LOG_FATAL,"Unable to play pipeline\n");
+		mountpoint->enabled = FALSE;
+		g_thread_unref (g_thread_self());
+		return NULL;
+	}
+	
+	GstCaps * acaps, * vcaps;
+	GstSample * asample, * vsample;
+	GstBuffer * abuffer, * vbuffer;
+	GstBuffer * abuffercpy, * vbuffercpy;
+	ps_gstreamer_rtp_relay_packet packet;
+	while (!g_atomic_int_get (&stopping) && !mountpoint->destroyed) {
+		asample = gst_app_sink_pull_sample (GST_APP_SINK (source->asink));
+		if (asample) {
+			if (mountpoint->active == FALSE) mountpoint->active = TRUE;
+			source->last_received_audio = ps_get_monotonic_time();
+			abuffer = gst_sample_get_buffer (asample);
+			abuffercpy = gst_buffer_copy (abuffer);
+			gst_sample_unref (asample);
+			bytes = gst_buffer_get_size (abuffercpy);
+			if (!mountpoint->enabled) continue;
+			rtp_header * rtp = (rtp_header *) abuffer;
+			packet.data = rtp;
+			packet.length = bytes;
+			packet.is_video = 0;
+			packet.is_keyframe = 0;
+			if (ntohl(packet.data->ssrc) != a_last_ssrc) {
+				a_last_ssrc = ntohl (packet.data->ssrc);
+				PS_LOG (LOG_INFO, "[%s] New audio stream! (ssrc=%u) \n", name, a_last_ssrc);
+				a_base_ts_prev = a_last_ts;
+				a_base_ts = ntohl (packet.data->timestamp);
+				a_base_seq_prev = a_last_seq;
+				a_base_seq = ntohs (packet.data->seq_number);
+			}
+			/* Assuming OPUS with framesize 20 */
+			a_last_ts = (ntohl(packet.data->timestamp)-a_base_ts) + a_base_ts_prev + 960;
+			packet.data->timestamp = htonl(a_last_ts);
+			a_last_seq = (ntohl(packet.data->seq_number)-a_base_seq) + a_base_seq_prev + 1;
+			packet.data->seq_number = htons(a_last_seq);
+			packet.data->type = mountpoint->codecs.audio_pt;
+			packet.timestamp = ntohl (packet.data->timestamp);
+			packet.seq_number = ntohs (packet.data->seq_number);
+			ps_mutex_lock (&mountpoints_mutex);
+			//g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
+			ps_mutex_unlock (&mountpoints_mutex);
+			continue;
+		}
+		/*
+		vsample = gst_app_sink_pull_sample (GST_APP_SINK (source->vsink));
+		vbuffer = gst_sample_get_buffer (vsample);
+		gst_sample_unref (vsample);
+		*/
+	}
+	
+	//gst_element_set_state (source->pipeline, GST_STATE_NULL);
+	ps_mutex_lock (&mountpoint->mutex);
+	GList * viewer = g_list_first (mountpoint->listeners);
+	
+	/* Prepare JSON event */
+	json_t *event = json_object();
+	json_object_set_new(event, "streaming", json_string("event"));
+	json_t *result = json_object();
+	json_object_set_new(result, "status", json_string("stopped"));
+	json_object_set_new(event, "result", result);
+	char *event_text = json_dumps(event, JSON_INDENT(3) | JSON_PRESERVE_ORDER);
+	json_decref(event);
+	while(viewer) {
+		ps_gstreamer_session *session = (ps_gstreamer_session *)viewer->data;
+		if(session != NULL) {
+			session->stopping = TRUE;
+			session->started = FALSE;
+			session->paused = FALSE;
+			session->mountpoint = NULL;
+			/* Tell the core to tear down the PeerConnection, hangup_media will do the rest */
+			gateway->push_event(session->handle, &ps_gstreamer_plugin, NULL, event_text, NULL, NULL);
+			gateway->close_pc(session->handle);
+		}
+		mountpoint->listeners = g_list_remove_all(mountpoint->listeners, session);
+		viewer = g_list_first(mountpoint->listeners);
+	}
+	g_free(event_text);
+	ps_mutex_unlock(&mountpoint->mutex);
+
+	PS_LOG(LOG_VERB, "[%s] Leaving streaming relay thread\n", name);
+	g_free(name);
+	g_thread_unref(g_thread_self());
 	return NULL;
 }
 

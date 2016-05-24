@@ -4,6 +4,7 @@ include_directories(
    ${LIBWEBSOCKETS_INCLUDE_DIR}
    ${JANSSON_INCLUDE_DIRS}
    ${GSTREAMER_INCLUDE_DIRS}
+   ${GSTREAMER_APP_INCLUDE_DIRS}
 )
 
 set(TRANSPORT_LIBS 
@@ -11,6 +12,7 @@ set(TRANSPORT_LIBS
    ${LIBWEBSOCKETS_LIBRARIES} 
    ${GLIB_LIBRARIES} 
    ${GSTREAMER_LIBRARIES} 
+   ${GSTREAMER_APP_LIBRARIES}
    pthread)
    
 add_library(psgstreamer SHARED ps_gstreamer.c)
