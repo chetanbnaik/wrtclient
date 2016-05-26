@@ -8,6 +8,8 @@
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 
+#include "../rtp.h"
+
 typedef struct ps_gstreamer_rtp_source {
 	GstElement * pipeline, * sink, * filter;
 	GstCaps * filtercaps;
@@ -17,16 +19,35 @@ static GstFlowReturn new_sample (GstElement * appsink, ps_gstreamer_rtp_source *
 	GstCaps * caps;
 	GstSample * sample;
 	GstBuffer * buffer;
+	GstMapInfo * map;
+	gpointer framedata;
+	gsize dest_size;
 	
-	sample = gst_app_sink_pull_sample (GST_APP_SINK(appsink));
+	sample = gst_app_sink_pull_sample (GST_APP_SINK(source->sink));
 	//g_signal_emit_by_name (appsink, "pull-sample", &sample, NULL);
 	if (sample != NULL) {
 		caps = gst_sample_get_caps (sample);
 		g_print ("CAPS: %s\n", gst_caps_to_string(caps));
 		buffer = gst_sample_get_buffer (sample);
-		g_print ("Buffer len: %d\n", gst_buffer_get_size (buffer));
-		//if (caps != NULL) gst_caps_unref (caps);
-		//g_print ("here-> %p\n",sample);
+		gst_buffer_extract_dup (buffer, 0, gst_buffer_get_size (buffer), &framedata, &dest_size);
+		rtp_header * rtp = (rtp_header *) framedata;
+		g_print ("framedata ssrc -> %u\n", rtp->ssrc);
+		g_print ("framedata type -> %u\n", rtp->type);
+		g_print ("Buffer len: %d, gsize: %"G_GSIZE_FORMAT"\n", gst_buffer_get_size (buffer), dest_size);
+		g_print ("framedata ts -> %u, buffer pts: %"G_GUINT64_FORMAT"\n", rtp->timestamp, GST_BUFFER_PTS (buffer));
+		g_print ("framedata ntohl(ts) -> %u, buffer pts: %"G_GUINT64_FORMAT"\n", ntohl(rtp->timestamp), GST_BUFFER_PTS (buffer));
+		g_print ("framedata sequence -> %u, ntohs(seq) -> %u\n", rtp->seq_number,ntohs(rtp->seq_number));
+		g_print ("Buffer dts: %"G_GUINT64_FORMAT"\n", GST_BUFFER_DTS (buffer));
+		g_print ("Buffer duration: %"G_GUINT64_FORMAT"\n", GST_BUFFER_DURATION (buffer));
+		/*
+		if (gst_buffer_map (buffer, &map, GST_MAP_READ)) {
+			g_print ("Buffer map: 
+			gst_buffer_unmap (buffer, &map);
+		}
+		if (caps != NULL) gst_caps_unref (caps);
+		g_print ("here-> %p\n",sample);*/
+		
+		g_free (framedata);
 		gst_sample_unref (sample);
 	} else {
 		g_warning ("Sample not received\n");

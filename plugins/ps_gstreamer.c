@@ -1200,7 +1200,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 	ps_gstreamer_rtp_relay_packet packet;
 	while (!g_atomic_int_get (&stopping) && !mountpoint->destroyed) {
 		asample = gst_app_sink_pull_sample (GST_APP_SINK (source->asink));
-		if (asample) {
+		if (asample != NULL) {
 			if (mountpoint->active == FALSE) mountpoint->active = TRUE;
 			source->last_received_audio = ps_get_monotonic_time();
 			abuffer = gst_sample_get_buffer (asample);
@@ -1208,7 +1208,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			gst_sample_unref (asample);
 			bytes = gst_buffer_get_size (abuffercpy);
 			if (!mountpoint->enabled) continue;
-			rtp_header * rtp = (rtp_header *) abuffer;
+			rtp_header * rtp = (rtp_header *) abuffercpy;
 			packet.data = rtp;
 			packet.length = bytes;
 			packet.is_video = 0;
