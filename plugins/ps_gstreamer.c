@@ -1184,7 +1184,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			v_last_seq = 0, v_base_seq = 0, v_base_seq_prev = 0;
 	
 	/* Loop */
-	int num = 0, bytes = 0;
+	int bytes = 0;
 	gst_element_set_state (source->pipeline, GST_STATE_PLAYING);
 	if (gst_element_get_state (source->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
 		PS_LOG (LOG_FATAL,"Unable to play pipeline\n");
@@ -1193,10 +1193,11 @@ static void * ps_gstreamer_relay_thread (void * data) {
 		return NULL;
 	}
 	
-	GstCaps * acaps, * vcaps;
 	GstSample * asample, * vsample;
 	GstBuffer * abuffer, * vbuffer;
-	GstBuffer * abuffercpy, * vbuffercpy;
+	gpointer aframedata, vframedata;
+	gsize afsize, vfsize;
+	
 	ps_gstreamer_rtp_relay_packet packet;
 	while (!g_atomic_int_get (&stopping) && !mountpoint->destroyed) {
 		asample = gst_app_sink_pull_sample (GST_APP_SINK (source->asink));
@@ -1204,11 +1205,14 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			if (mountpoint->active == FALSE) mountpoint->active = TRUE;
 			source->last_received_audio = ps_get_monotonic_time();
 			abuffer = gst_sample_get_buffer (asample);
-			abuffercpy = gst_buffer_copy (abuffer);
+			gst_buffer_extract_dup (abuffer, 0, -1, &aframedata, &afsize);
+			bytes = afsize; //gst_buffer_get_size (abuffer);
 			gst_sample_unref (asample);
-			bytes = gst_buffer_get_size (abuffercpy);
-			if (!mountpoint->enabled) continue;
-			rtp_header * rtp = (rtp_header *) abuffercpy;
+			if (!mountpoint->enabled) {
+				g_free (aframedata);
+				continue;
+			}
+			rtp_header * rtp = (rtp_header *) aframedata;
 			packet.data = rtp;
 			packet.length = bytes;
 			packet.is_video = 0;
@@ -1231,14 +1235,103 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			packet.seq_number = ntohs (packet.data->seq_number);
 			ps_mutex_lock (&mountpoints_mutex);
 			//g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
+			g_free (aframedata);
 			ps_mutex_unlock (&mountpoints_mutex);
-			continue;
+			//continue;
 		}
-		/*
+		
 		vsample = gst_app_sink_pull_sample (GST_APP_SINK (source->vsink));
-		vbuffer = gst_sample_get_buffer (vsample);
-		gst_sample_unref (vsample);
-		*/
+		if (vsample != NULL) {
+			if (mountpoint->active == FALSE) mountpoint->active = TRUE;
+			source->last_received_video = ps_get_monotonic_time();
+			vbuffer = gst_sample_get_buffer (vsample);
+			gst_buffer_extract_dup (vbuffer, 0, -1, &vframedata, &vfsize);
+			bytes = vfsize;
+			
+			gst_sample_unref (vsample);
+			rtp_header * rtp = (rtp_header *) vframedata;
+			if (source->keyframe.enabled) {
+				if (source->keyframe.temp_ts > 0 && ntohl(rtp->timestamp) != source->keyframe.temp_ts) {
+					PS_LOG(LOG_HUGE, "[%s] ... last part of keyframe received! ts=%"SCNu32", %d packets\n", mountpoint->name, source->keyframe.temp_ts, g_list_length(source->keyframe.temp_keyframe));
+					source->keyframe.temp_ts = 0;
+					ps_mutex_lock(&source->keyframe.mutex);
+					GList * temp = NULL;
+					while (source->keyframe.latest_keyframe) {
+						temp = g_list_first(source->keyframe.latest_keyframe);
+						source->keyframe.latest_keyframe = g_list_remove_link (source->keyframe.latest_keyframe, temp);
+						ps_gstreamer_rtp_relay_packet * pkt = (ps_gstreamer_rtp_relay_packet *) temp->data;
+						g_free (pkt->data);
+						g_free (pkt);
+						g_free (temp);
+					}
+					source->keyframe.latest_keyframe = source->keyframe.temp_keyframe;
+					source->keyframe.temp_keyframe = NULL;
+					ps_mutex_unlock(&source->keyframe.mutex);
+				} else if (ntohl (rtp->timestamp) == source->keyframe.temp_ts) {
+					ps_mutex_lock(&source->keyframe.mutex);
+					PS_LOG(LOG_HUGE, "[%s] ... other part of keyframe received! ts=%"SCNu32"\n", mountpoint->name, source->keyframe.temp_ts);
+					ps_gstreamer_rtp_relay_packet * pkt = g_malloc0(sizeof(ps_gstreamer_rtp_relay_packet));
+					pkt->data = g_malloc0(bytes);
+					memcpy (pkt->data, vframedata, bytes);
+					pkt->data->ssrc = htons(1);
+					pkt->data->type = mountpoint->codecs.video_pt;
+					pkt->is_video = 1;
+					pkt->is_keyframe = 1;
+					pkt->length = bytes;
+					pkt->timestamp = source->keyframe.temp_ts;
+					pkt->seq_number = ntohs(rtp->seq_number);
+					source->keyframe.temp_keyframe = g_list_append(source->keyframe.temp_keyframe, pkt);
+					ps_mutex_unlock(&source->keyframe.mutex);
+				} else if (ps_gstreamer_is_keyframe(mountpoint->codecs.video_codec, vframedata, bytes)) {
+					source->keyframe.temp_ts = ntohl(rtp->timestamp);
+					PS_LOG (LOG_HUGE, "[%s] New keyframe received! ts=%"SCNu32"\n", mountpoint->name, source->keyframe.temp_ts);
+					ps_mutex_lock(&source->keyframe.mutex);
+					ps_gstreamer_rtp_relay_packet * pkt = g_malloc0(sizeof(ps_gstreamer_rtp_relay_packet));
+					pkt->data = g_malloc0(bytes);
+					memcpy (pkt->data, vframedata, bytes);
+					pkt->data->ssrc = htons(1);
+					pkt->data->type = mountpoint->codecs.video_pt;
+					pkt->is_video = 1;
+					pkt->is_keyframe = 1;
+					pkt->length = bytes;
+					pkt->timestamp = source->keyframe.temp_ts;
+					pkt->seq_number = ntohs(rtp->seq_number);
+					source->keyframe.temp_keyframe = g_list_append(source->keyframe.temp_keyframe, pkt);
+					ps_mutex_unlock(&source->keyframe.mutex);
+				}
+			}
+			if (!mountpoint->enabled) {
+				g_free (vframedata);
+				continue;
+			}
+			packet.data = rtp;
+			packet.length = bytes;
+			packet.is_video = 1;
+			packet.is_keyframe = 0;
+			if (ntohl(packet.data->ssrc) != v_last_ssrc) {
+				v_last_ssrc = ntohl (packet.data->ssrc);
+				PS_LOG(LOG_INFO, "[%s] New video stream! (ssrc=%u)\n", name, v_last_ssrc);
+				v_base_ts_prev = v_last_ts;
+				v_base_ts = ntohl(packet.data->timestamp);
+				v_base_seq_prev = v_last_seq;
+				v_base_seq = ntohs(packet.data->seq_number);
+			}
+			/* FIXME We're assuming 15fps here... */
+			v_last_ts = (ntohl(packet.data->timestamp)-v_base_ts)+v_base_ts_prev+4500;	
+			packet.data->timestamp = htonl(v_last_ts);
+			v_last_seq = (ntohs(packet.data->seq_number)-v_base_seq)+v_base_seq_prev+1;
+			packet.data->seq_number = htons(v_last_seq);
+			packet.data->type = mountpoint->codecs.video_pt;
+			packet.timestamp = ntohl(packet.data->timestamp);
+			packet.seq_number = ntohs(packet.data->seq_number);
+			/* Go! */
+			ps_mutex_lock(&mountpoint->mutex);
+			//g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
+			g_free (vframedata);
+			ps_mutex_unlock(&mountpoint->mutex);
+			//continue;
+		}
+		
 	}
 	
 	//gst_element_set_state (source->pipeline, GST_STATE_NULL);
@@ -1280,8 +1373,133 @@ static void ps_gstreamer_relay_rtp_packet (gpointer data, gpointer user_data) {
 	return;
 }
 
+/* Helpers to check if frame is a key frame (see post processor code) */
+#if defined(__ppc__) || defined(__ppc64__)
+	# define swap2(d)  \
+	((d&0x000000ff)<<8) |  \
+	((d&0x0000ff00)>>8)
+#else
+	# define swap2(d) d
+#endif
+
 static gboolean ps_gstreamer_is_keyframe (gint codec, char * buffer, int len) {
-	return FALSE;
+	if(codec == PS_GSTREAMER_VP8) {
+		/* VP8 packet */
+		if(!buffer || len < 28)
+			return FALSE;
+		/* Parse RTP header first */
+		rtp_header *header = (rtp_header *)buffer;
+		guint32 timestamp = ntohl(header->timestamp);
+		guint16 seq = ntohs(header->seq_number);
+		/*PS_LOG(LOG_HUGE, "Checking if VP8 packet (size=%d, seq=%"SCNu16", ts=%"SCNu32") is a key frame...\n",
+			len, seq, timestamp);*/
+		uint16_t skip = 0;
+		if(header->extension) {
+			janus_rtp_header_extension *ext = (janus_rtp_header_extension *)(buffer+12);
+			PS_LOG(LOG_HUGE, "  -- RTP extension found (type=%"SCNu16", length=%"SCNu16")\n",
+				ntohs(ext->type), ntohs(ext->length));
+			skip = 4 + ntohs(ext->length)*4;
+		}
+		buffer += 12+skip;
+		/* Parse VP8 header now */
+		uint8_t vp8pd = *buffer;
+		uint8_t xbit = (vp8pd & 0x80);
+		uint8_t sbit = (vp8pd & 0x10);
+		if(xbit) {
+			PS_LOG(LOG_HUGE, "  -- X bit is set!\n");
+			/* Read the Extended control bits octet */
+			buffer++;
+			vp8pd = *buffer;
+			uint8_t ibit = (vp8pd & 0x80);
+			uint8_t lbit = (vp8pd & 0x40);
+			uint8_t tbit = (vp8pd & 0x20);
+			uint8_t kbit = (vp8pd & 0x10);
+			if(ibit) {
+				PS_LOG(LOG_HUGE, "  -- I bit is set!\n");
+				/* Read the PictureID octet */
+				buffer++;
+				vp8pd = *buffer;
+				uint16_t picid = vp8pd, wholepicid = picid;
+				uint8_t mbit = (vp8pd & 0x80);
+				if(mbit) {
+					PS_LOG(LOG_HUGE, "  -- M bit is set!\n");
+					memcpy(&picid, buffer, sizeof(uint16_t));
+					wholepicid = ntohs(picid);
+					picid = (wholepicid & 0x7FFF);
+					buffer++;
+				}
+				PS_LOG(LOG_HUGE, "  -- -- PictureID: %"SCNu16"\n", picid);
+			}
+			if(lbit) {
+				PS_LOG(LOG_HUGE, "  -- L bit is set!\n");
+				/* Read the TL0PICIDX octet */
+				buffer++;
+				vp8pd = *buffer;
+			}
+			if(tbit || kbit) {
+				PS_LOG(LOG_HUGE, "  -- T/K bit is set!\n");
+				/* Read the TID/KEYIDX octet */
+				buffer++;
+				vp8pd = *buffer;
+			}
+			buffer++;	/* Now we're in the payload */
+			if(sbit) {
+				PS_LOG(LOG_HUGE, "  -- S bit is set!\n");
+				unsigned long int vp8ph = 0;
+				memcpy(&vp8ph, buffer, 4);
+				vp8ph = ntohl(vp8ph);
+				uint8_t pbit = ((vp8ph & 0x01000000) >> 24);
+				if(!pbit) {
+					PS_LOG(LOG_HUGE, "  -- P bit is NOT set!\n");
+					/* It is a key frame! Get resolution for debugging */
+					unsigned char *c = (unsigned char *)buffer+3;
+					/* vet via sync code */
+					if(c[0]!=0x9d||c[1]!=0x01||c[2]!=0x2a) {
+						PS_LOG(LOG_WARN, "First 3-bytes after header not what they're supposed to be?\n");
+					} else {
+						int vp8w = swap2(*(unsigned short*)(c+3))&0x3fff;
+						int vp8ws = swap2(*(unsigned short*)(c+3))>>14;
+						int vp8h = swap2(*(unsigned short*)(c+5))&0x3fff;
+						int vp8hs = swap2(*(unsigned short*)(c+5))>>14;
+						PS_LOG(LOG_HUGE, "Got a VP8 key frame: %dx%d (scale=%dx%d)\n", vp8w, vp8h, vp8ws, vp8hs);
+						return TRUE;
+					}
+				}
+			}
+		}
+		/* If we got here it's not a key frame */
+		return FALSE;
+	} else if(codec == PS_GSTREAMER_H264) {
+		/* Parse RTP header first */
+		rtp_header *header = (rtp_header *)buffer;
+		guint32 timestamp = ntohl(header->timestamp);
+		guint16 seq = ntohs(header->seq_number);
+		PS_LOG(LOG_HUGE, "Checking if H264 packet (size=%d, seq=%"SCNu16", ts=%"SCNu32") is a key frame...\n",
+			len, seq, timestamp);
+		uint16_t skip = 0;
+		if(header->extension) {
+			janus_rtp_header_extension *ext = (janus_rtp_header_extension *)(buffer+12);
+			PS_LOG(LOG_HUGE, "  -- RTP extension found (type=%"SCNu16", length=%"SCNu16")\n",
+				ntohs(ext->type), ntohs(ext->length));
+			skip = 4 + ntohs(ext->length)*4;
+		}
+		buffer += 12+skip;
+		/* Parse H264 header now */
+		uint8_t fragment = *buffer & 0x1F;
+		uint8_t nal = *(buffer+1) & 0x1F;
+		uint8_t start_bit = *(buffer+1) & 0x80;
+		PS_LOG(LOG_HUGE, "Fragment=%d, NAL=%d, Start=%d\n", fragment, nal, start_bit);
+		if(fragment == 5 ||
+				((fragment == 28 || fragment == 29) && nal == 5 && start_bit == 128)) {
+			PS_LOG(LOG_HUGE, "Got an H264 key frame\n");
+			return TRUE;
+		}
+		/* If we got here it's not a key frame */
+		return FALSE;
+	} else {
+		/* FIXME Not a clue */
+		return FALSE;
+	}
 }
 
 gboolean bus_msg (GstBus * bus, GstMessage * msg, gpointer * loop){
