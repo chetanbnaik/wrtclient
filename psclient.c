@@ -1537,7 +1537,7 @@ void ps_plugin_relay_data (ps_plugin_session * plugin_session, char * buf, int l
 	if(!handle || ps_flags_is_set(&handle->webrtc_flags, JANUS_ICE_HANDLE_WEBRTC_STOP)
 			|| ps_flags_is_set(&handle->webrtc_flags, JANUS_ICE_HANDLE_WEBRTC_ALERT))
 		return;
-
+	PS_LOG (LOG_HUGE, "Got a packet of length %d\n", len);
 	janus_ice_relay_data(handle, buf, len);
 }
 
