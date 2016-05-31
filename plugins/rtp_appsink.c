@@ -42,9 +42,9 @@ static GstFlowReturn new_sample (GstElement * appsink, ps_gstreamer_rtp_source *
 			g_print ("Key frame received\n");
 		}
 		/*g_print ("framedata ssrc -> %u\n", rtp->ssrc);
-		g_print ("framedata type -> %u\n", rtp->type);
+		g_print ("framedata type -> %u\n", rtp->type);*/
 		g_print ("Buffer len: %d, gsize: %"G_GSIZE_FORMAT"\n", gst_buffer_get_size (buffer), dest_size);
-		g_print ("framedata ts -> %u, buffer pts: %"G_GUINT64_FORMAT"\n", rtp->timestamp, GST_BUFFER_PTS (buffer));
+		/*g_print ("framedata ts -> %u, buffer pts: %"G_GUINT64_FORMAT"\n", rtp->timestamp, GST_BUFFER_PTS (buffer));
 		g_print ("framedata ntohl(ts) -> %u, buffer pts: %"G_GUINT64_FORMAT"\n", ntohl(rtp->timestamp), GST_BUFFER_PTS (buffer));
 		g_print ("framedata sequence -> %u, ntohs(seq) -> %u\n", rtp->seq_number,ntohs(rtp->seq_number));
 		g_print ("Buffer dts: %"G_GUINT64_FORMAT"\n", GST_BUFFER_DTS (buffer));

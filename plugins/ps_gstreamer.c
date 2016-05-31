@@ -72,8 +72,12 @@ ps_plugin * create (void) {
 	return &ps_gstreamer_plugin;
 }
 
-/* something useful */
+/*configuration*/
+static ps_config * config = NULL;
+static const char * config_file = NULL;
 static ps_mutex config_mutex;
+
+/* something useful */
 static volatile gint initialized = 0, stopping = 0;
 static ps_callbacks * gateway = NULL;
 static GThread * handler_thread;
@@ -556,7 +560,85 @@ struct ps_plugin_result * ps_gstreamer_handle_message (ps_plugin_session * handl
 	}
 	
 	const char * request_text = json_string_value (request);
-	if (!strcasecmp(request_text, "create")) {
+	if (!strcasecmp(request_text, "list")) {
+		json_t * list = json_array();
+		PS_LOG (LOG_VERB, "Request for list of mountpoints \n");
+		ps_mutex_lock(&mountpoints_mutex);
+		GHashTableIter iter;
+		gpointer value;
+		g_hash_table_iter_init(&iter, mountpoints);
+		while (g_hash_table_iter_next(&iter, NULL, &value)) {
+			ps_gstreamer_mountpoint *mp = value;
+			if(mp->is_private) {
+				/* Skip private stream */
+				PS_LOG(LOG_VERB, "Skipping private mountpoint '%s'\n", mp->description);
+				continue;
+			}
+			json_t *ml = json_object();
+			json_object_set_new(ml, "id", json_integer(mp->id));
+			json_object_set_new(ml, "description", json_string(mp->description));
+			json_object_set_new(ml, "type", json_string(mp->streamer_type == ps_gstreamer_type_live ? "live" : "on demand"));
+			if(mp->streamer_source == ps_gstreamer_source_rtp) {
+				ps_gstreamer_rtp_source *source = mp->source;
+				gint64 now = ps_get_monotonic_time();
+				if(GST_STATE(source->pipeline) == GST_STATE_PLAYING) {
+					json_object_set_new(ml, "audio_age_ms", json_integer((now - source->last_received_audio) / 1000));
+					json_object_set_new(ml, "video_age_ms", json_integer((now - source->last_received_video) / 1000));
+				}
+			}
+			json_array_append_new(list, ml);
+		}
+		ps_mutex_unlock(&mountpoints_mutex);
+		/* Send info back */
+		response = json_object();
+		json_object_set_new(response, "streaming", json_string("list"));
+		json_object_set_new(response, "list", list);
+		goto plugin_response;
+	} else if (!strcasecmp(request_text, "info")){
+		PS_LOG(LOG_VERB, "Request info on a specific mountpoint\n");
+		/* Return info on a specific mountpoint */
+		json_t *id = json_object_get(root, "id");
+		if(!id) {
+			PS_LOG(LOG_ERR, "Missing element (id)\n");
+			error_code = PS_GSTREAMER_ERROR_MISSING_ELEMENT;
+			g_snprintf(error_cause, 512, "Missing element (id)");
+			goto error;
+		}
+		if(!json_is_integer(id) || json_integer_value(id) < 0) {
+			PS_LOG(LOG_ERR, "Invalid element (id should be a positive integer)\n");
+			error_code = PS_GSTREAMER_ERROR_INVALID_ELEMENT;
+			g_snprintf(error_cause, 512, "Invalid element (id should be a positive integer)");
+			goto error;
+		}
+		gint64 id_value = json_integer_value(id);
+		ps_mutex_lock(&mountpoints_mutex);
+		ps_gstreamer_mountpoint *mp = g_hash_table_lookup(mountpoints, GINT_TO_POINTER(id_value));
+		if(mp == NULL) {
+			ps_mutex_unlock(&mountpoints_mutex);
+			PS_LOG(LOG_VERB, "No such mountpoint/stream %"SCNu64"\n", id_value);
+			error_code = PS_GSTREAMER_ERROR_NO_SUCH_MOUNTPOINT;
+			g_snprintf(error_cause, 512, "No such mountpoint/stream %"SCNu64"", id_value);
+			goto error;
+		}
+		json_t *ml = json_object();
+		json_object_set_new(ml, "id", json_integer(mp->id));
+		json_object_set_new(ml, "description", json_string(mp->description));
+		json_object_set_new(ml, "type", json_string(mp->streamer_type == ps_gstreamer_type_live ? "live" : "on demand"));
+		if(mp->streamer_source == ps_gstreamer_source_rtp) {
+			ps_gstreamer_rtp_source *source = mp->source;
+			gint64 now = ps_get_monotonic_time();
+			if(GST_STATE(source->pipeline) == GST_STATE_PLAYING) {
+				json_object_set_new(ml, "audio_age_ms", json_integer((now - source->last_received_audio) / 1000));
+				json_object_set_new(ml, "video_age_ms", json_integer((now - source->last_received_video) / 1000));
+			}
+		}
+		ps_mutex_unlock(&mountpoints_mutex);
+		/* Send info back */
+		response = json_object();
+		json_object_set_new(response, "streaming", json_string("info"));
+		json_object_set_new(response, "info", ml);
+		goto plugin_response;		
+	} else if (!strcasecmp(request_text, "create")) {
 		json_t * type = json_object_get (root, "type");
 		if (!type) {
 			PS_LOG (LOG_ERR, "Missing element (type)\n");
@@ -599,6 +681,27 @@ struct ps_plugin_result * ps_gstreamer_handle_message (ps_plugin_session * handl
 		goto error;
 	}
 
+plugin_response:
+		{
+			if(!response) {
+				error_code = PS_GSTREAMER_ERROR_UNKNOWN_ERROR;
+				g_snprintf(error_cause, 512, "Invalid response");
+				goto error;
+			}
+			if(root != NULL)
+				json_decref(root);
+			g_free(transaction);
+			g_free(message);
+			g_free(sdp_type);
+			g_free(sdp);
+
+			char *response_text = json_dumps(response, JSON_INDENT(3) | JSON_PRESERVE_ORDER);
+			json_decref(response);
+			ps_plugin_result *result = ps_plugin_result_new(PS_PLUGIN_OK, response_text);
+			g_free(response_text);
+			return result;
+		}
+		
 error:
 	{
 		if (root != NULL) json_decref(root);
@@ -996,6 +1099,9 @@ static void ps_gstreamer_rtp_source_free (ps_gstreamer_rtp_source * source) {
 	source->keyframe.temp_keyframe = NULL;
 	ps_mutex_unlock (&source->keyframe.mutex);
 	gst_element_set_state (source->pipeline, GST_STATE_NULL);
+	if (gst_element_get_state (source->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+		PS_LOG (LOG_ERR,"Unable to stop pipeline\n");
+	}
 	gst_object_unref (GST_OBJECT (source->pipeline));
 	g_free (source);
 }
@@ -1234,8 +1340,8 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			packet.timestamp = ntohl (packet.data->timestamp);
 			packet.seq_number = ntohs (packet.data->seq_number);
 			ps_mutex_lock (&mountpoints_mutex);
-			//g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			g_free (aframedata);
+			g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
+			//g_free (aframedata);
 			ps_mutex_unlock (&mountpoints_mutex);
 			//continue;
 		}
@@ -1326,8 +1432,8 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			packet.seq_number = ntohs(packet.data->seq_number);
 			/* Go! */
 			ps_mutex_lock(&mountpoint->mutex);
-			//g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			g_free (vframedata);
+			g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
+			//g_free (vframedata);
 			ps_mutex_unlock(&mountpoint->mutex);
 			//continue;
 		}
@@ -1370,7 +1476,65 @@ static void * ps_gstreamer_relay_thread (void * data) {
 }
 
 static void ps_gstreamer_relay_rtp_packet (gpointer data, gpointer user_data) {
+	ps_gstreamer_rtp_relay_packet * packet = (ps_gstreamer_rtp_relay_packet *) user_data;
+	if (!packet || !packet->data || packet->length < 1) {
+		PS_LOG(LOG_ERR, "Invalid Packet...\n");
+		return;
+	}
+	ps_gstreamer_session * session = (ps_gstreamer_session *) data;
+	if (!session || !session->handle) {
+		PS_LOG(LOG_ERR, "Invalid Session...\n");
+		return;
+	}
+	if (!packet->is_keyframe && (!session->started || session->paused)) {
+		PS_LOG(LOG_ERR, "Streaming not started for this Session...\n");
+		return;
+	}
+	
+	if(packet->is_video) {
+		if(ntohl(packet->data->ssrc) != session->context.v_last_ssrc) {
+			session->context.v_last_ssrc = ntohl(packet->data->ssrc);
+			session->context.v_base_ts_prev = session->context.v_last_ts;
+			session->context.v_base_ts = packet->timestamp;
+			session->context.v_base_seq_prev = session->context.v_last_seq;
+			session->context.v_base_seq = packet->seq_number;
+		}
+		/* Compute a coherent timestamp and sequence number */
+		session->context.v_last_ts = (packet->timestamp-session->context.v_base_ts)
+			+ session->context.v_base_ts_prev+4500;	/* FIXME When switching, we assume 15fps */
+		session->context.v_last_seq = (packet->seq_number-session->context.v_base_seq)+session->context.v_base_seq_prev+1;
+		/* Update the timestamp and sequence number in the RTP packet, and send it */
+		packet->data->timestamp = htonl(session->context.v_last_ts);
+		packet->data->seq_number = htons(session->context.v_last_seq);
+		if(gateway != NULL)
+			gateway->relay_rtp(session->handle, packet->is_video, (char *)packet->data, packet->length);
+		/* Restore the timestamp and sequence number to what the publisher set them to */
+		packet->data->timestamp = htonl(packet->timestamp);
+		packet->data->seq_number = htons(packet->seq_number);
+	} else {
+		if(ntohl(packet->data->ssrc) != session->context.a_last_ssrc) {
+			session->context.a_last_ssrc = ntohl(packet->data->ssrc);
+			session->context.a_base_ts_prev = session->context.a_last_ts;
+			session->context.a_base_ts = packet->timestamp;
+			session->context.a_base_seq_prev = session->context.a_last_seq;
+			session->context.a_base_seq = packet->seq_number;
+		}
+		/* Compute a coherent timestamp and sequence number */
+		session->context.a_last_ts = (packet->timestamp-session->context.a_base_ts)
+			+ session->context.a_base_ts_prev+960;	/* FIXME When switching, we assume Opus and so a 960 ts step */
+		session->context.a_last_seq = (packet->seq_number-session->context.a_base_seq)+session->context.a_base_seq_prev+1;
+		/* Update the timestamp and sequence number in the RTP packet, and send it */
+		packet->data->timestamp = htonl(session->context.a_last_ts);
+		packet->data->seq_number = htons(session->context.a_last_seq);
+		if(gateway != NULL)
+			gateway->relay_rtp(session->handle, packet->is_video, (char *)packet->data, packet->length);
+		/* Restore the timestamp and sequence number to what the publisher set them to */
+		packet->data->timestamp = htonl(packet->timestamp);
+		packet->data->seq_number = htons(packet->seq_number);
+	}
+
 	return;
+	
 }
 
 /* Helpers to check if frame is a key frame (see post processor code) */
