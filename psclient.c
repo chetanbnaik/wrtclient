@@ -311,6 +311,18 @@ int ps_process_incoming_request (ps_request * request) {
 			goto jsondone;
 		}
 		session_id = 0;
+		json_t * id = json_object_get(root, "id");
+		if (id != NULL) {
+			if (!json_is_integer(id) || json_integer_value (id) < 0) {
+				ret = ps_process_error (request,session_id,transaction_text, JANUS_ERROR_INVALID_ELEMENT_TYPE, "Invalid element type, (id should be a positive integer");
+				goto jsondone;
+			}
+			session_id = json_integer_value (id);
+			if (session_id > 0 && ps_session_find(session_id) != NULL) {
+				ret = ps_process_error (request, session_id, transaction_text, JANUS_ERROR_SESSION_CONFLICT, "Session id already in use");
+				goto jsondone;
+			}
+		}
 		ps_session * session = ps_session_create(session_id);
 		if (session == NULL) {
 			ret = ps_process_error (request, session_id, transaction_text, JANUS_ERROR_UNKNOWN, "Memory Error");
@@ -405,6 +417,7 @@ int ps_process_incoming_request (ps_request * request) {
 			ret = ps_process_error(request, session_id, transaction_text, JANUS_ERROR_PLUGIN_ATTACH, "Couldn't attach to plugin: error '%d'", error);
 			goto jsondone;
 		}
+		
 		/* Prepare JSON reply */
 		json_t *reply = json_object();
 		json_object_set_new(reply, "janus", json_string("success"));
@@ -877,7 +890,8 @@ int ps_process_incoming_request (ps_request * request) {
 			ps_flags_clear (&handle->webrtc_flags, JANUS_ICE_HANDLE_WEBRTC_PROCESSING_OFFER);
 		}
 		
-		if (handle->app == NULL || handle->app_handle == NULL || ps_plugin_session_is_alive (handle->app_handle)) {
+		if (handle->app == NULL || handle->app_handle == NULL || !ps_plugin_session_is_alive (handle->app_handle)) {
+			PS_LOG (LOG_HUGE, "session alive %d\n", ps_plugin_session_is_alive (handle->app_handle));
 			ret = ps_process_error (request, session_id, transaction_text, JANUS_ERROR_PLUGIN_MESSAGE, "no plugin to handle this message");
 			if (jsep_type) g_free (jsep_type);
 			if (jsep_sdp_stripped) g_free (jsep_sdp_stripped);
