@@ -785,11 +785,18 @@ void ps_gstreamer_setup_media (ps_plugin_session * handle) {
 }
 
 void ps_gstreamer_incoming_rtp (ps_plugin_session * handle, int video, char * buf, int len) {
-	return;
+	if (handle == NULL || handle->stopped || g_atomic_int_get(&stopping) || !g_atomic_int_get(&initialized))
+		return;
 }
 
 void ps_gstreamer_incoming_rtcp (ps_plugin_session * handle, int video, char * buf, int len) {
-	return;
+	if (handle == NULL || handle->stopped || g_atomic_int_get(&stopping) || !g_atomic_int_get(&initialized))
+		return;
+		
+	uint64_t bw = janus_rtcp_get_remb (buf, len);
+	if (bw > 0) {
+		PS_LOG (LOG_HUGE, "REMB for this PeerConnection: %"SCNu64"\n", bw);
+	}
 }
 
 void ps_gstreamer_incoming_data (ps_plugin_session * handle, char * buf, int len) {
@@ -1341,7 +1348,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			packet.seq_number = ntohs (packet.data->seq_number);
 			ps_mutex_lock (&mountpoints_mutex);
 			g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			//g_free (aframedata);
+			g_free (aframedata);
 			ps_mutex_unlock (&mountpoints_mutex);
 			//continue;
 		}
@@ -1433,7 +1440,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			/* Go! */
 			ps_mutex_lock(&mountpoint->mutex);
 			g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			//g_free (vframedata);
+			g_free (vframedata);
 			ps_mutex_unlock(&mountpoint->mutex);
 			//continue;
 		}
