@@ -12,6 +12,7 @@
 <script type="text/javascript" src="js/adapter.js" ></script>
 <script type="text/javascript" src="js/janus.js" ></script>
 <script type="text/javascript" src="js/streamingtest.js"></script>
+<script type="text/javascript" src="js/Cloth.js"></script>
 <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
 <link rel="stylesheet" href="css/demo.css" type="text/css" />
 </head>
@@ -36,6 +37,7 @@
 					<button class="btn btn-default" autocomplete="off" id="start">Start</button>
 				</h1>
 			</div>
+			
 			<div class="container hide" id="streams">
 				<div class="row">
 					<div class="col-md-6">
@@ -53,10 +55,12 @@
 										<ul id="streamslist" class="dropdown-menu" role="menu">
 										</ul>
 									</div>
+									<button class="btn btn-primary" autocomplete="off" id="record">Send</button>
 								</div>
 							</div>
 						</div>
 					</div>
+					
 					<div class="col-md-6">
 						<div class="panel panel-default">
 							<div class="panel-heading">
@@ -65,6 +69,16 @@
 							<div class="panel-body" id="stream"></div>
 						</div>
 					</div>
+					<div class="col-md-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Local Canvas <span class="label label-info hide" id="local-title"></h3>
+							</div>
+							<div class="panel-body" id="canvas">
+								<canvas id="mycanvas" width="680" height="480"></canvas>
+							</div>
+						</div>
+					</div>					
 				</div>
 			</div>
 		</div>
