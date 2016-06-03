@@ -110,6 +110,7 @@ typedef struct ps_gstreamer_rtp_source {
 	GstElement * asource, * afilter, * aencoder, * artppay, * asink; 
 	GstElement * resample, * vconvert;
 	GstElement * pipeline;
+	GstBus * bus;
 	GstCaps * afiltercaps, * vfiltercaps;
 	gint64 last_received_video;
 	gint64 last_received_audio;
@@ -370,6 +371,17 @@ void ps_gstreamer_destroy (void) {
 		ps_gstreamer_mountpoint * mp = value;
 		if (!mp->destroyed) {
 			mp->destroyed = ps_get_monotonic_time();
+			ps_gstreamer_rtp_source * source = mp->source;
+			if (source == NULL) {
+				PS_LOG (LOG_ERR, "[%s] Invalid RTP source mountpoint!\n", mp->name);
+				continue;
+			}
+			gst_object_unref (source->bus);
+			gst_element_set_state (source->pipeline, GST_STATE_NULL);
+			if (gst_element_get_state (source->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+				PS_LOG (LOG_ERR,"Unable to stop pipeline\n");
+			}
+			gst_object_unref (GST_OBJECT (source->pipeline));
 			old_mountpoints = g_list_append (old_mountpoints, mp);
 		}
 	}
@@ -787,6 +799,16 @@ void ps_gstreamer_setup_media (ps_plugin_session * handle) {
 void ps_gstreamer_incoming_rtp (ps_plugin_session * handle, int video, char * buf, int len) {
 	if (handle == NULL || handle->stopped || g_atomic_int_get(&stopping) || !g_atomic_int_get(&initialized))
 		return;
+	if (gateway) {
+		ps_gstreamer_session * session = (ps_gstreamer_session *)handle->plugin_handle;
+		if(!session) {
+			PS_LOG(LOG_ERR, "No session associated with this handle\n");
+			return;
+		}
+		if (session->destroyed) return;
+		PS_LOG(LOG_VERB, "Received %s packet of length %d bytes\n", video ? "video" : "audio", len);
+		return;
+	}
 }
 
 void ps_gstreamer_incoming_rtcp (ps_plugin_session * handle, int video, char * buf, int len) {
@@ -1083,7 +1105,7 @@ error:
 }
 
 static void ps_gstreamer_rtp_source_free (ps_gstreamer_rtp_source * source) {
-	/* destroy the GST pipeline */
+	
 	ps_mutex_lock (&source->keyframe.mutex);
 	GList * temp = NULL;
 	while (source->keyframe.latest_keyframe) {
@@ -1105,11 +1127,6 @@ static void ps_gstreamer_rtp_source_free (ps_gstreamer_rtp_source * source) {
 	}
 	source->keyframe.temp_keyframe = NULL;
 	ps_mutex_unlock (&source->keyframe.mutex);
-	gst_element_set_state (source->pipeline, GST_STATE_NULL);
-	if (gst_element_get_state (source->pipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
-		PS_LOG (LOG_ERR,"Unable to stop pipeline\n");
-	}
-	gst_object_unref (GST_OBJECT (source->pipeline));
 	g_free (source);
 }
 
@@ -1224,6 +1241,9 @@ ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 		ps_mutex_unlock (&mountpoints_mutex);
 		return NULL;
 	}
+	live_rtp_source->bus = gst_pipeline_get_bus (GST_PIPELINE (live_rtp_source->pipeline));
+	/*gst_bus_add_signal_watch (live_rtp_source->bus);
+	g_signal_connect (live_rtp_source->bus, "message::error", G_CALLBACK*/
 	
 	live_rtp_source->last_received_audio = ps_get_monotonic_time();
 	live_rtp_source->last_received_video = ps_get_monotonic_time();
@@ -1348,7 +1368,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			packet.seq_number = ntohs (packet.data->seq_number);
 			ps_mutex_lock (&mountpoints_mutex);
 			g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			g_free (aframedata);
+			//g_free (aframedata);
 			ps_mutex_unlock (&mountpoints_mutex);
 			//continue;
 		}
@@ -1440,7 +1460,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			/* Go! */
 			ps_mutex_lock(&mountpoint->mutex);
 			g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			g_free (vframedata);
+			//g_free (vframedata);
 			ps_mutex_unlock(&mountpoint->mutex);
 			//continue;
 		}
