@@ -1776,22 +1776,37 @@ gint main (int argc, char * argv[]) {
 	}
 	
 	plugins = g_hash_table_new (g_str_hash, g_str_equal);
-	/* Load plugin */
-	void * plugin = dlopen ("libpsgstreamer.so",RTLD_LAZY);
-	if (!plugin) {
+	/* Load plugin 1*/
+	void * plugin_src = dlopen ("libpsgstreamer.so",RTLD_LAZY);
+	if (!plugin_src) {
 		PS_LOG (LOG_ERR, "Couldn't load libpsgstreamer.so: %s\n", dlerror());
 		exit(1);
 	}
-	create_p *createp = (create_p*) dlsym(plugin, "create");
-	const char * dlsym_errorp = dlerror();
-	if (dlsym_errorp) {
-		PS_LOG (LOG_ERR, "Couldn't load 'create' from libpsgstreamer.so: %s\n", dlsym_errorp);
+	create_p *create_src = (create_p*) dlsym(plugin_src, "create");
+	const char * dlsym_error_src = dlerror();
+	if (dlsym_error_src) {
+		PS_LOG (LOG_ERR, "Couldn't load 'create' from libpsgstreamer.so: %s\n", dlsym_error_src);
 		exit(1);
 	}
+	ps_plugin * ps_plugin_src = create_src();
+	ps_plugin_src->init (&ps_handler_plugin, configs_folder);
+	g_hash_table_insert (plugins, (gpointer)ps_plugin_src->get_package(), ps_plugin_src);
 	
-	ps_plugin * ps_plugin = createp();
-	ps_plugin->init (&ps_handler_plugin, configs_folder);
-	g_hash_table_insert (plugins, (gpointer)ps_plugin->get_package(), ps_plugin);
+	/* Load plugin 2*/
+	void * plugin_sink = dlopen ("libpsgstsink.so",RTLD_LAZY);
+	if (!plugin_sink) {
+		PS_LOG (LOG_ERR, "Couldn't load libpsgstsink.so: %s\n", dlerror());
+		exit(1);
+	}
+	create_p *create_sink = (create_p*) dlsym(plugin_sink, "create");
+	const char * dlsym_error_sink = dlerror();
+	if (dlsym_error_sink) {
+		PS_LOG (LOG_ERR, "Couldn't load 'create' from libpsgstreamer.so: %s\n", dlsym_error_sink);
+		exit(1);
+	}
+	ps_plugin * ps_plugin_sink = create_sink();
+	ps_plugin_sink->init (&ps_handler_plugin, configs_folder);
+	g_hash_table_insert (plugins, (gpointer)ps_plugin_sink->get_package(), ps_plugin_sink);
 	
 	/* threadpool to handle incoming requests from transport */
 	GError * error = NULL;
