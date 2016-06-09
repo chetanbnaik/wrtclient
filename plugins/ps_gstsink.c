@@ -510,7 +510,7 @@ struct ps_plugin_result * ps_gstsink_handle_message (ps_plugin_session * handle,
 		json_object_set_new(settings, "video-bitrate-max", json_integer(session->video_bitrate)); 
 		json_object_set_new(response, "settings", settings); 
 		goto plugin_response;
-	} else if (!strcasecmp(request_text, "record") || !strcasecmp(request_text,"stop")) {
+	} else if (!strcasecmp(request_text, "start") || !strcasecmp(request_text,"stop")) {
 		ps_gstsink_message * msg = g_malloc0(sizeof(ps_gstsink_message));
 		if (msg==NULL) {
 			PS_LOG (LOG_FATAL, "Memory Error!\n");
@@ -591,7 +591,7 @@ void ps_gstsink_setup_media (ps_plugin_session * handle) {
 	g_atomic_int_set(&session->hangingup, 0);
 	
 	session->active = TRUE;
-	/* Start playing the GST pipeline here */
+	PS_LOG(LOG_VERB,"Start playing the GST pipeline here\n");
 	
 	/* Prepare JSON event 
 	json_t *event = json_object();

@@ -4,6 +4,9 @@
  * video/x-raw,format=RGB,width=320,height=240,framerate=30/1 ! 
  * videoconvert ! vp8enc ! rtpvp8pay ! appsink
  * 
+ * gst-launch-1.0 -v v4l2src ! 
+ * video/x-raw,format=YUY2,width=320,height=240,framerate=15/1 ! 
+ * videoconvert ! autovideosink
  * */
 #include <gst/gst.h>
 #include <inttypes.h>
@@ -29,7 +32,7 @@ static GstFlowReturn new_sample (GstElement * appsink, ps_gstreamer_rtp_source *
 	GstMapInfo * map;
 	gpointer framedata;
 	gsize dest_size;
-	
+	g_print("Sample received\n");	
 	sample = gst_app_sink_pull_sample (GST_APP_SINK(source->sink));
 	//g_signal_emit_by_name (appsink, "pull-sample", &sample, NULL);
 	if (sample != NULL) {
@@ -208,7 +211,7 @@ gint main (int argc, char * argv[]) {
 	
 	gst_init (&argc, &argv);
 	data = (ps_gstreamer_rtp_source *)g_malloc0(sizeof(ps_gstreamer_rtp_source));
-	char * vsrcname = "videotestsrc";
+	char * vsrcname = "v4l2src";
 	source = gst_element_factory_make (vsrcname,"source");
 	videorate = gst_element_factory_make ("videorate", "videorate");
 	data->filter = gst_element_factory_make ("capsfilter","filter");
@@ -224,9 +227,9 @@ gint main (int argc, char * argv[]) {
 	g_signal_connect (data->sink, "new-sample", G_CALLBACK (new_sample), data);
 	
 	data->filtercaps = gst_caps_new_simple ("video/x-raw", 
-				"format", G_TYPE_STRING, "RGB",
-				"width", G_TYPE_INT, 480,
-				"height", G_TYPE_INT, 320,
+				"format", G_TYPE_STRING, "YUY2",
+				"width", G_TYPE_INT, 320,
+				"height", G_TYPE_INT, 240,
 				"framerate", GST_TYPE_FRACTION, 15, 1,
 				NULL);
 	g_print ("filtercaps--> %s\n", gst_caps_to_string(data->filtercaps));
