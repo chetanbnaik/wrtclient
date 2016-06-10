@@ -662,7 +662,7 @@ void ps_gstsink_incoming_rtp (ps_plugin_session * handle, int video, char * buf,
 			return;
 		}
 		if (session->destroyed) return;
-		PS_LOG(LOG_VERB, "Received %s packet of length %d bytes\n", video ? "video" : "audio", len);
+		//PS_LOG(LOG_VERB, "Received %s packet of length %d bytes\n", video ? "video" : "audio", len);
 		return;
 	}
 }
@@ -828,7 +828,7 @@ static void * ps_gstsink_handler (void * data) {
 			if(opus_pt > 0) {
 				g_snprintf(audio_mline, 256, sdp_a_template,
 					opus_pt,						/* Opus payload type */
-					"recvonly",						/* Recording is recvonly */
+					"inactive",						/* FIXME to check a= line */
 					opus_pt); 						/* Opus payload type */
 			} else {
 				audio_mline[0] = '\0';
@@ -836,7 +836,7 @@ static void * ps_gstsink_handler (void * data) {
 			if(vp8_pt > 0) {
 				g_snprintf(video_mline, 512, sdp_v_template,
 					vp8_pt,							/* VP8 payload type */
-					"recvonly",						/* Recording is recvonly */
+					"recvonly",						/* FIXME to check a= line */
 					vp8_pt, 						/* VP8 payload type */
 					vp8_pt, 						/* VP8 payload type */
 					vp8_pt, 						/* VP8 payload type */
@@ -858,7 +858,13 @@ static void * ps_gstsink_handler (void * data) {
 			json_object_set_new(result, "status", json_string("recording"));
 			json_object_set_new(result, "id", json_integer(id));
 		} else if (!strcasecmp(request_text,"stop")) {
-			
+			session->active = FALSE;
+			/* Set gst pipeline to paused or set to null? */
+			/* session->aplayer?; session->vplayer?; */
+			session->recorder = FALSE;
+			/* Done */
+			result = json_object();
+			json_object_set_new(result, "status", json_string("stopped"));
 		} else {
 			PS_LOG(LOG_VERB, "Unknown request '%s'\n", request_text);
 			error_code = PS_GSTSINK_ERROR_INVALID_REQUEST;
