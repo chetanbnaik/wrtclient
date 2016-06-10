@@ -485,6 +485,7 @@ function Janus(gatewayCallbacks) {
 		}
 		if(websockets) {
 			ws = new WebSocket(server, 'janus-protocol'); 
+			//ws = new WebSocket(server); 
 			wsHandlers = {
 				'error': function() {
 					Janus.error("Error connecting to the Janus WebSockets server... " + server);
@@ -1154,6 +1155,7 @@ function Janus(gatewayCallbacks) {
 		Janus.debug("streamsDone:", stream);
 		config.myStream = stream;
 		var pc_config = {"iceServers": iceServers};
+		//var pc_config = null;
 		//~ var pc_constraints = {'mandatory': {'MozDontOfferDataChannel':true}};
 		var pc_constraints = {
 			"optional": [{"DtlsSrtpKeyAgreement": true}]

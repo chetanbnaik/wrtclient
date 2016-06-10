@@ -1,0 +1,49 @@
+This appears to be Firefox adapter.js:34:5
+Initializing library <unknown>
+Library initialized: true <unknown>
+"Using WebSockets to contact Janus: ws://10.0.2.4:8080/ws" <unknown>
+Got event on session null <unknown>
+Object { janus: "success", transaction: "B6r12TcOLXWr", data: Object } <unknown>
+Object { janus: "success", transaction: "B6r12TcOLXWr", data: Object } <unknown>
+Created session: 3444417697 <unknown>
+Got event on session 3444417697 <unknown>
+Object { janus: "success", session_id: 3444417697, transaction: "VrvWAaYhxB4D", data: Object } <unknown>
+Object { janus: "success", session_id: 3444417697, transaction: "VrvWAaYhxB4D", data: Object } <unknown>
+Created handle: 2164441525 <unknown>
+Plugin attached! (ps.plugin.gstsink, id=2164441525) <unknown>
+Sending message to plugin (handle=2164441525): <unknown>
+Object { janus: "message", body: Object, transaction: "LAU3idyd4mmX" } <unknown>
+Got event on session 3444417697 <unknown>
+Object { janus: "success", session_id: 3444417697, sender: 2164441525, transaction: "LAU3idyd4mmX", plugindata: Object } <unknown>
+Message sent! <unknown>
+Object { janus: "success", session_id: 3444417697, sender: 2164441525, transaction: "LAU3idyd4mmX", plugindata: Object } <unknown>
+Synchronous transaction successful (ps.plugin.gstsink) <unknown>
+Object { recordplay: "configure", status: "ok", settings: Object } <unknown>
+navigator.mozGetUserMedia has been replaced by navigator.mediaDevices.getUserMedia adapter.js:210:11
+Array [ AudioStreamTrack, VideoStreamTrack ] <unknown>
+MediaStream provided by the application <unknown>
+MediaStream { id: "{6fb0f132-0be7-4749-bc81-42a1d3bb0f…", currentTime: 25.431655328798186 } <unknown>
+streamsDone: MediaStream { id: "{6fb0f132-0be7-4749-bc81-42a1d3bb0f…", currentTime: 25.431655328798186 } <unknown>
+Creating PeerConnection <unknown>
+Object { optional: Array[1] } <unknown>
+RTCPeerConnection { localDescription: null, remoteDescription: null, signalingState: "stable", iceGatheringState: "new", iceConnectionState: "new", peerIdentity: Promise, idpLoginUrl: null, onnegotiationneeded: null, onicecandidate: null, onsignalingstatechange: null } <unknown>
+Preparing local SDP and gathering candidates (trickle=true) <unknown>
+Adding local stream <unknown>
+ ::: Got a local stream ::: <unknown>
+RTCIceServer.url is deprecated! Use urls instead. <unknown>
+TypeError: element is undefined
+attachMediaStream()
+ adapter.js:83
+.callback/</janus<.success/<.onlocalstream()
+ packetservo.js:88
+streamsDone()
+ janus.js:1205
+prepareWebrtc()
+ janus.js:1288
+createHandle/transactions[transaction]/pluginHandle.createOffer()
+ janus.js:772
+prepareStream/<()
+ packetservo.js:136
+ adapter.js:83:3
+Got event on session 3444417697 <unknown>
+Object { janus: "ack", session_id: 3444417697, transaction: "fvmSOGdCjyFO" } <unknown>

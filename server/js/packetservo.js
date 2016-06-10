@@ -34,6 +34,7 @@ $(document).ready(function() {
 			}
 			janus = new Janus({
 				server: server,
+				//iceServers: [{url: null}],
 				success: function(){
 					janus.attach(
 					{
@@ -43,8 +44,8 @@ $(document).ready(function() {
 							Janus.log("Plugin attached! (" + gstsink.getPlugin() + ", id=" + gstsink.getId() + ")");
 							$('#start').removeAttr('disabled').html("Stop")
 								.click(function(){
-									$(this).attr('disabled', true);
-									janus.destroy();
+									gstsink.send({'message': {'request':'stop'}});
+									//janus.destroy();
 								});
 							gstsink.send({
 								'message': {
@@ -53,7 +54,23 @@ $(document).ready(function() {
 									'video-keyframe-interval': 15000
 								}
 							});
-							prepareStream(mycanvas); 
+							//prepareStream(mycanvas); 
+							start_cloth(mycanvas);
+							vstream = canvas.captureStream(10);
+							gstsink.createOffer({
+								stream: vstream,
+								success: function(jsep) {
+									Janus.debug("Got SDP!");
+									Janus.debug(jsep);
+									var body = {"request": "start"};
+									gstsink.send({"message": body, "jsep": jsep});
+								},
+								error: function(error) {
+									Janus.error("WebRTC error...", error);
+									bootbox.alert("WebRTC error..." + error);
+									gstsink.hangup();
+								}
+							});
 						},
 						error: function(error) {
 							Janus.error(" -- Error attaching plugin --", error);
@@ -75,7 +92,11 @@ $(document).ready(function() {
 											Janus.log("The ID is "+id);
 											recordingId = id;
 										}
-									} 
+									} else if (event === "stopped") {
+										vstream.getTracks().forEach(function(track){track.stop();});
+										//vstream = null;
+										gstsink.hangup();
+									}
 								}
 							} else {
 								var error = msg["error"];
