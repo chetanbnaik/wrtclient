@@ -1,3 +1,14 @@
+/*
+ * 
+ * gst-launch-1.0 videotestsrc ! videoscale ! videorate ! videoconvert ! 
+ * timeoverlay ! vp8enc ! rtpvp8pay ! udpsink port=5004
+ * 
+ * gst-launch-1.0 -v udpsrc port=5004 caps="application/x-rtp" ! 
+ * rtpvp8depay ! vp8dec ! videoconvert ! autovideosink
+ * 
+ * 
+ * 
+ * */
 #include <dirent.h>
 #include <jansson.h>
 #include <arpa/inet.h>
@@ -103,25 +114,31 @@ typedef struct ps_gstsink_rtp_header_extension {
 } ps_gstsink_rtp_header_extension;
 
 typedef struct ps_audio_player {
-	GstElement * vsource, * vfilter, * vencoder, * vrtppay, * vsink; 
-	GstElement * asource, * afilter, * aencoder, * artppay, * asink; 
-	GstElement * resample, * vconvert;
-	GstElement * pipeline;
-	GstBus * bus;
-	GstCaps * afiltercaps, * vfiltercaps;
-	gint64 last_received_video;
+	GstElement * asource, * afilter, * artpdepay;
+	GstElement * adecoder, * aconvert, * display;
+	GstElement * apipeline;
+	GstCaps * afiltercaps;
+	gboolean isaCapsSet;
+	GstBus * abus;
 	gint64 last_received_audio;
 } ps_audio_player;
 
+typedef struct ps_video_packet {
+	char * data;
+	gint length;
+	gint is_video;
+} ps_video_packet;
+static GAsyncQueue * vpackets = NULL;
+static ps_video_packet eos_vpacket;
+
 typedef struct ps_video_player {
-	GstElement * vsource, * vfilter, * vencoder, * vrtppay, * vsink; 
-	GstElement * asource, * afilter, * aencoder, * artppay, * asink; 
-	GstElement * resample, * vconvert;
-	GstElement * pipeline;
-	GstBus * bus;
-	GstCaps * afiltercaps, * vfiltercaps;
+	GstElement * vsource, * vfilter, * vrtpdepay;
+	GstElement * vdecoder, * vconvert, * display;
+	GstElement * vpipeline;
+	GstCaps * vfiltercaps;
+	gboolean isvCapsSet;
+	GstBus * vbus;
 	gint64 last_received_video;
-	gint64 last_received_audio;
 } ps_video_player;
 
 typedef struct ps_gstsink_session {
@@ -129,6 +146,8 @@ typedef struct ps_gstsink_session {
 	gboolean active;
 	gboolean recorder;
 	gboolean firefox;
+	gboolean play_video;
+	gboolean play_audio;
 	ps_audio_player * aplayer;
 	ps_video_player * vplayer;
 	guint video_remb_startup;
@@ -144,7 +163,7 @@ static GHashTable * sessions;
 static GList * old_sessions;
 static ps_mutex sessions_mutex;
 
-static void * ps_gstsink_player_thread (void * data);
+static void * ps_gstsink_vplayer_thread (void * data);
 void ps_gstsink_send_rtcp_feedback (ps_plugin_session * handle, int video, char * buf, int len);
 
 /* SDP offer/answer templates for the playout */
@@ -239,6 +258,9 @@ int ps_gstsink_init (ps_callbacks * callback, const char * config_path) {
 	if (g_atomic_int_get(&stopping)) return -1;
 	//if (callback == NULL || config_path == NULL) return -1;
 	if (callback == NULL) return -1;
+	
+	/* Initialize GSTREAMER */
+	gst_init (NULL, NULL);
 	
 	sessions = g_hash_table_new (NULL, NULL);
 	ps_mutex_init (&sessions_mutex);
@@ -340,6 +362,8 @@ void ps_gstsink_create_session (ps_plugin_session * handle, int * error) {
 	session->active = FALSE;
 	session->recorder = FALSE;
 	session->firefox = FALSE;
+	session->play_audio = FALSE;
+	session->play_video = FALSE;
 	session->aplayer = NULL;
 	session->vplayer = NULL;
 	session->destroyed = 0;
@@ -591,8 +615,48 @@ void ps_gstsink_setup_media (ps_plugin_session * handle) {
 	g_atomic_int_set(&session->hangingup, 0);
 	
 	session->active = TRUE;
+	/* As of now, it plays only VP8 stream */
+	if (session->play_video) {
+		ps_video_player * vsink = g_malloc0(sizeof(ps_video_player));
+		if (vsink == NULL) {
+			PS_LOG (LOG_FATAL, "Memory error\n");
+			/* FIXME: clean up session here, if pipeline fails */
+			return;
+		}
+		vsink->vsource = gst_element_factory_make ("appsrc","vsource");
+		vsink->vfiltercaps = NULL;
+		vsink->isvCapsSet = FALSE;
+		vsink->vrtpdepay = gst_element_factory_make ("rtpvp8depay", "vrtpdepay");
+		vsink->vdecoder = gst_element_factory_make ("vp8dec", "vdecoder");
+		vsink->vconvert = gst_element_factory_make ("videoconvert", "vconvert");
+		vsink->display = gst_element_factory_make ("autovideosink", "display");
+		vsink->vpipeline = gst_pipeline_new ("pipeline");
+		gst_bin_add_many(GST_BIN(vsink->vpipeline), vsink->vsource, 
+			vsink->vrtpdepay, vsink->vdecoder, vsink->vconvert, vsink->display, NULL);
+		if (gst_element_link_many (vsink->vsource, vsink->vrtpdepay, vsink->vdecoder, vsink->vconvert, vsink->display, NULL) != TRUE) {
+			PS_LOG (LOG_ERR, "Failed to link GSTREAMER elements in video player!!!\n");
+			gst_object_unref (GST_OBJECT(vsink->vpipeline));
+			g_free (vsink);
+			/* FIXME: clean up session here, if pipeline fails */
+			return;
+		}
+		vsink->vbus = gst_pipeline_get_bus (GST_PIPELINE (vsink->vpipeline));
+		/*gst_bus_add_signal_watch (vsink->vbus);
+		g_signal_connect (vsink->vbus, "message::error", G_CALLBACK()); */
+		vsink->last_received_video = ps_get_monotonic_time();
+		session->vplayer = vsink;
+		GError * error = NULL;
+		g_thread_try_new ("playout", &ps_gstsink_vplayer_thread, session, &error);
+		if (error != NULL) {
+			PS_LOG (LOG_ERR, "Got error %d (%s) trying to launch the gstreamer thread...\n", error->code, error->message ? error->message : "??");
+			gst_object_unref (GST_OBJECT(vsink->vpipeline));
+			g_free (vsink);
+		}
+	}
+	
 	PS_LOG(LOG_VERB,"Start playing the GST pipeline here\n");
 	
+	return;
 	/* Prepare JSON event 
 	json_t *event = json_object();
 	json_object_set_new(event, "streaming", json_string("event"));
@@ -662,7 +726,19 @@ void ps_gstsink_incoming_rtp (ps_plugin_session * handle, int video, char * buf,
 			return;
 		}
 		if (session->destroyed) return;
-		//PS_LOG(LOG_VERB, "Received %s packet of length %d bytes\n", video ? "video" : "audio", len);
+		if (session->active && session->vplayer != NULL) {
+			ps_video_packet * pkt = (ps_video_packet *)g_malloc0(sizeof(ps_video_packet));
+			if (pkt == NULL) {
+				PS_LOG (LOG_FATAL, "Memory error!\n");
+				return;
+			}
+			pkt->data = g_malloc0(len);
+			memcpy(pkt->data, buf, len);
+			pkt->length = len;
+			pkt->is_video = video;
+			g_async_queue_push (vpackets, pkt);
+		}
+		
 		return;
 	}
 }
@@ -719,6 +795,16 @@ void ps_gstsink_hangup_media (ps_plugin_session * handle) {
 	if(g_atomic_int_add(&session->hangingup, 1))
 		return;
 	
+	if (session->play_video && session->vplayer != NULL) {
+		ps_video_player * player = session->vplayer;
+		gst_object_unref (player->vbus);
+		gst_element_set_state (player->vpipeline, GST_STATE_NULL);
+		if (gst_element_get_state (player->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+			PS_LOG (LOG_ERR, "Unable to stop GSTREAMER video player..!!\n");
+		}
+		gst_object_unref (GST_OBJECT(player->vpipeline));
+	}
+	
 	/* Send an event to the browser and tell it's over */
 	json_t *event = json_object();
 	json_object_set_new(event, "recordplay", json_string("event"));
@@ -730,7 +816,7 @@ void ps_gstsink_hangup_media (ps_plugin_session * handle) {
 	PS_LOG(LOG_VERB, "  >> %d (%s)\n", ret, janus_get_api_error(ret));
 	g_free(event_text);
 	
-	/* FIXME Simulate a "stop" coming from the browser */
+	/* FIXME Simulate a "stop" coming from the browser, Could be a simulated EOS !!*/
 	ps_gstsink_message *msg = g_malloc0(sizeof(ps_gstsink_message));
 	msg->handle = handle;
 	msg->message = json_loads("{\"request\":\"stop\"}", 0, NULL);
@@ -738,6 +824,64 @@ void ps_gstsink_hangup_media (ps_plugin_session * handle) {
 	msg->sdp_type = NULL;
 	msg->sdp = NULL;
 	g_async_queue_push(messages, msg);
+}
+
+static void * ps_gstsink_vplayer_thread (void * data) {
+	
+	ps_gstsink_session * session = (ps_gstsink_session *) data;
+	if (session == NULL) {
+		PS_LOG (LOG_ERR, "invalid session!\n");
+		g_thread_unref (g_thread_self());
+		return NULL; 
+	}
+	if (session->vplayer == NULL) {
+		PS_LOG (LOG_ERR, "Invalid gstreamer pipeline..\n");
+		g_thread_unref (g_thread_self());
+		return NULL;
+	}
+	ps_video_player * player = session->vplayer;
+	gst_element_set_state (player->vpipeline, GST_STATE_PLAYING);
+	if (gst_element_get_state (player->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+		PS_LOG (LOG_ERR, "Unable to play pipeline..!\n");
+		session->active = FALSE;
+		g_thread_unref (g_thread_self());
+		return NULL;
+	}
+	GstBuffer * feedbuffer;
+	GstFlowReturn ret;
+	ps_video_packet * packet = NULL;
+	PS_LOG (LOG_VERB, "Joining GstSink gstreamer player thread..\n");
+	while (!g_atomic_int_get (&stopping) && g_atomic_int_get(&initialized) && !g_atomic_int_get(&session->hangingup)) {
+		packet = g_async_queue_pop (vpackets);
+		if (packet == NULL) continue;
+		if (packet == &eos_vpacket) break;
+		if (packet->data == NULL) continue;
+		rtp_header * rtp = (rtp_header *) packet->data;
+		
+		if (!player->isvCapsSet) {
+			player->vfiltercaps = gst_caps_new_simple ("application/x-rtp",
+				"media", G_TYPE_STRING, "video",
+				"clock-rate", G_TYPE_INT, 90000,
+				"encoding-name", G_TYPE_STRING, "VP8-DRAFT-IETF-01",
+				"payload", G_TYPE_INT, 96,
+				"ssrc", G_TYPE_UINT, ntohl(rtp->ssrc),
+				"timestamp-offset", G_TYPE_UINT, ntohl(rtp->timestamp),
+				"seqnum-offset", G_TYPE_INT, ntohs(rtp->seq_number),
+				NULL);
+			g_object_set (player->vsource, "caps", player->vfiltercaps, NULL);
+			gst_caps_unref (player->vfiltercaps);
+			player->isvCapsSet = TRUE;
+		}
+
+		feedbuffer = gst_buffer_new_wrapped (packet->data, packet->length);
+		ret = gst_app_src_push_buffer (GST_APP_SRC(player->vsource), feedbuffer);
+		if (ret != GST_FLOW_OK) {
+			PS_LOG (LOG_WARN, "Incoming rtp packet not pushed!!\n");
+		}
+	}
+	/* FIXME: Send EOS on the gstreamer pipeline */
+	PS_LOG (LOG_VERB, "Leaving GstSink gstreamer player thread..\n");
+	return NULL;
 }
 
 static void * ps_gstsink_handler (void * data) {
@@ -820,28 +964,53 @@ static void * ps_gstsink_handler (void * data) {
 			session->recorder = TRUE;
 			/* We need to prepare an answer */
 			int opus_pt = 0, vp8_pt = 0;
+			char * opus_dir = NULL;
+			char * vp8_dir = NULL;
+			opus_dir = ps_get_opus_dir (msg->sdp);
+			vp8_dir = ps_get_vp8_dir (msg->sdp);
+			PS_LOG (LOG_VERB, "Audio direction: %s, Video direction: %s\n", opus_dir, vp8_dir);
 			opus_pt = ps_get_opus_pt(msg->sdp);
 			PS_LOG(LOG_VERB, "Opus payload type is %d\n", opus_pt);
 			vp8_pt = ps_get_vp8_pt(msg->sdp);
 			PS_LOG(LOG_VERB, "VP8 payload type is %d\n", vp8_pt);
 			char sdptemp[1024], audio_mline[256], video_mline[512];
-			if(opus_pt > 0) {
-				g_snprintf(audio_mline, 256, sdp_a_template,
-					opus_pt,						/* Opus payload type */
-					"inactive",						/* FIXME to check a= line */
-					opus_pt); 						/* Opus payload type */
+			if(opus_pt > 0 && opus_dir != NULL) {
+				if (!strcasecmp(opus_dir, "sendrecv") || !strcasecmp(opus_dir, "sendonly")){
+					g_snprintf(audio_mline, 256, sdp_a_template,
+						opus_pt,						/* Opus payload type */
+						"recvonly",						/* FIXME to check a= line */
+						opus_pt); 						/* Opus payload type */
+					session->play_audio = TRUE;
+				} else {
+					g_snprintf(audio_mline, 256, sdp_a_template,
+						opus_pt,						/* Opus payload type */
+						"inactive",						/* FIXME to check a= line */
+						opus_pt); 						/* Opus payload type */
+				}
 			} else {
 				audio_mline[0] = '\0';
 			}
-			if(vp8_pt > 0) {
-				g_snprintf(video_mline, 512, sdp_v_template,
-					vp8_pt,							/* VP8 payload type */
-					"recvonly",						/* FIXME to check a= line */
-					vp8_pt, 						/* VP8 payload type */
-					vp8_pt, 						/* VP8 payload type */
-					vp8_pt, 						/* VP8 payload type */
-					vp8_pt, 						/* VP8 payload type */
-					vp8_pt); 						/* VP8 payload type */
+			if(vp8_pt > 0 && vp8_dir != NULL) {
+				if (!strcasecmp(vp8_dir, "sendrecv") || !strcasecmp(vp8_dir, "sendonly")){
+					g_snprintf(video_mline, 512, sdp_v_template,
+						vp8_pt,							/* VP8 payload type */
+						"recvonly",						/* FIXME to check a= line */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt); 						/* VP8 payload type */
+					session->play_video = TRUE;
+				} else {
+					g_snprintf(video_mline, 512, sdp_v_template,
+						vp8_pt,							/* VP8 payload type */
+						"inactive",						/* FIXME to check a= line */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt, 						/* VP8 payload type */
+						vp8_pt); 						/* VP8 payload type */
+				}
 			} else {
 				video_mline[0] = '\0';
 			}
