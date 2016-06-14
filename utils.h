@@ -41,6 +41,12 @@ int ps_mkdir(const char *dir, mode_t mode);
 int ps_get_opus_pt(const char *sdp);
 
 
+char * ps_get_opus_dir (const char * sdp);
+
+
+char * ps_get_vp8_dir (const char * sdp);
+
+
 int ps_get_isac32_pt(const char *sdp);
 
 

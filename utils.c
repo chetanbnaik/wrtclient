@@ -221,6 +221,52 @@ int ps_get_opus_pt(const char *sdp) {
 	return -3;
 }
 
+char * ps_get_opus_dir (const char * sdp) {
+	if (sdp == NULL) return NULL;
+	if (!strstr(sdp, "m=audio") || (!strstr(sdp, "opus/48000") && !strstr(sdp, "OPUS/48000")))
+		return NULL;
+	const char * line = strstr(sdp, "m=audio");
+	while(line) {
+		char * next = strchr(line, '\n');
+		if (next) {
+			* next = '\0';
+			if (strstr(line, "a=sendrecv") || strstr(line,"a=sendonly") || strstr(line,"a=recvonly") || strstr(line,"a=inactive")) {
+				char direction[8];
+				if(sscanf(line, "a=%s", direction) == 1) {
+					*next = '\n';
+					return g_strdup(direction);
+				}
+			}
+			* next = '\n';
+		}
+		line = next ? (next + 1) : NULL;
+	}
+	return NULL;
+}
+
+char * ps_get_vp8_dir (const char * sdp) {
+	if (sdp == NULL) return NULL;
+	if (!strstr(sdp, "m=video") || (!strstr(sdp, "vp8/90000") && !strstr(sdp, "VP8/90000")))
+		return NULL;
+	const char * line = strstr(sdp, "m=video");
+	while(line) {
+		char * next = strchr(line, '\n');
+		if (next) {
+			* next = '\0';
+			if (strstr(line, "a=sendrecv") || strstr(line,"a=sendonly") || strstr(line,"a=recvonly") || strstr(line,"a=inactive")) {
+				char direction[8];
+				if(sscanf(line, "a=%s", direction) == 1) {
+					*next = '\n';
+					return g_strdup(direction);
+				}
+			}
+			* next = '\n';
+		}
+		line = next ? (next + 1) : NULL;
+	}
+	return NULL;
+}
+
 int ps_get_isac32_pt(const char *sdp) {
 	if(!sdp)
 		return -1;
