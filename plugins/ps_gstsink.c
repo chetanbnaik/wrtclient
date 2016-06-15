@@ -128,7 +128,6 @@ typedef struct ps_video_packet {
 	gint length;
 	gint is_video;
 } ps_video_packet;
-static GAsyncQueue * vpackets = NULL;
 static ps_video_packet eos_vpacket;
 
 typedef struct ps_video_player {
@@ -150,6 +149,7 @@ typedef struct ps_gstsink_session {
 	gboolean play_audio;
 	ps_audio_player * aplayer;
 	ps_video_player * vplayer;
+	GAsyncQueue * vpackets;
 	guint video_remb_startup;
 	guint64 video_remb_last;
 	guint64 video_bitrate;
@@ -189,6 +189,13 @@ void ps_gstsink_send_rtcp_feedback (ps_plugin_session * handle, int video, char 
 		"a=rtcp-fb:%d nack\r\n"				/* VP8 payload type */ \
 		"a=rtcp-fb:%d nack pli\r\n"			/* VP8 payload type */ \
 		"a=rtcp-fb:%d goog-remb\r\n"		/* VP8 payload type */
+
+/*static void ps_video_packet_free (ps_video_packet * pkt) {
+	if (!pkt || pkt == &eos_vpacket) return;
+	g_free (pkt->data);
+	pkt->data = NULL;
+	g_free (pkt);
+}*/
 
 static void ps_gstsink_message_free (ps_gstsink_message * msg) {
 	if (!msg || msg == &exit_message) return;
@@ -303,7 +310,26 @@ void ps_gstsink_destroy (void) {
 	}
 	usleep(500000);
 	ps_mutex_lock(&sessions_mutex);
-	/* Stop the GSTREAMER pipeline here */
+	/* Cleanup session data */
+	GHashTableIter iter;
+	gpointer value;
+	g_hash_table_iter_init (&iter, sessions);
+	while (g_hash_table_iter_next (&iter, NULL, &value)) {
+		ps_gstsink_session * session = value;
+		if (!session->destroyed && session->vplayer != NULL) {
+			ps_video_player * player = session->vplayer;
+			gst_object_unref (player->vbus);
+			gst_element_set_state (player->vpipeline, GST_STATE_NULL);
+			if (gst_element_get_state (player->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+				PS_LOG (LOG_ERR, "Unable to stop GSTREAMER video player..!!\n");
+			}
+			gst_object_unref (GST_OBJECT(player->vpipeline));
+		}
+		g_hash_table_remove(sessions, session->handle);
+		/* Cleaning up and removing the session is done in a lazy way */
+		old_sessions = g_list_append(old_sessions, session);
+	}
+	
 	g_hash_table_destroy(sessions);
 	ps_mutex_unlock(&sessions_mutex);
 	g_async_queue_unref(messages);
@@ -367,6 +393,7 @@ void ps_gstsink_create_session (ps_plugin_session * handle, int * error) {
 	session->aplayer = NULL;
 	session->vplayer = NULL;
 	session->destroyed = 0;
+	session->vpackets = NULL;
 	g_atomic_int_set(&session->hangingup, 0);
 	session->video_remb_startup = 4;
 	session->video_remb_last = ps_get_monotonic_time();
@@ -617,7 +644,7 @@ void ps_gstsink_setup_media (ps_plugin_session * handle) {
 	session->active = TRUE;
 	/* As of now, it plays only VP8 stream */
 	if (session->play_video) {
-		ps_video_player * vsink = g_malloc0(sizeof(ps_video_player));
+		ps_video_player * vsink = (ps_video_player *)g_malloc0(sizeof(ps_video_player));
 		if (vsink == NULL) {
 			PS_LOG (LOG_FATAL, "Memory error\n");
 			/* FIXME: clean up session here, if pipeline fails */
@@ -645,6 +672,7 @@ void ps_gstsink_setup_media (ps_plugin_session * handle) {
 		g_signal_connect (vsink->vbus, "message::error", G_CALLBACK()); */
 		vsink->last_received_video = ps_get_monotonic_time();
 		session->vplayer = vsink;
+		session->vpackets = g_async_queue_new ();
 		GError * error = NULL;
 		g_thread_try_new ("playout", &ps_gstsink_vplayer_thread, session, &error);
 		if (error != NULL) {
@@ -732,11 +760,12 @@ void ps_gstsink_incoming_rtp (ps_plugin_session * handle, int video, char * buf,
 				PS_LOG (LOG_FATAL, "Memory error!\n");
 				return;
 			}
-			pkt->data = g_malloc0(len);
+			pkt->data = (char *)g_malloc0(len);
 			memcpy(pkt->data, buf, len);
 			pkt->length = len;
 			pkt->is_video = video;
-			g_async_queue_push (vpackets, pkt);
+			if (session->vpackets != NULL)
+				g_async_queue_push (session->vpackets, pkt);
 		}
 		
 		return;
@@ -795,16 +824,6 @@ void ps_gstsink_hangup_media (ps_plugin_session * handle) {
 	if(g_atomic_int_add(&session->hangingup, 1))
 		return;
 	
-	if (session->play_video && session->vplayer != NULL) {
-		ps_video_player * player = session->vplayer;
-		gst_object_unref (player->vbus);
-		gst_element_set_state (player->vpipeline, GST_STATE_NULL);
-		if (gst_element_get_state (player->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
-			PS_LOG (LOG_ERR, "Unable to stop GSTREAMER video player..!!\n");
-		}
-		gst_object_unref (GST_OBJECT(player->vpipeline));
-	}
-	
 	/* Send an event to the browser and tell it's over */
 	json_t *event = json_object();
 	json_object_set_new(event, "recordplay", json_string("event"));
@@ -816,14 +835,16 @@ void ps_gstsink_hangup_media (ps_plugin_session * handle) {
 	PS_LOG(LOG_VERB, "  >> %d (%s)\n", ret, janus_get_api_error(ret));
 	g_free(event_text);
 	
-	/* FIXME Simulate a "stop" coming from the browser, Could be a simulated EOS !!*/
+	g_async_queue_push(session->vpackets, &eos_vpacket);
+	
+	/* FIXME Simulate a "stop" coming from the browser, Could be a simulated EOS !!
 	ps_gstsink_message *msg = g_malloc0(sizeof(ps_gstsink_message));
 	msg->handle = handle;
 	msg->message = json_loads("{\"request\":\"stop\"}", 0, NULL);
 	msg->transaction = NULL;
 	msg->sdp_type = NULL;
 	msg->sdp = NULL;
-	g_async_queue_push(messages, msg);
+	g_async_queue_push(messages, msg);*/
 }
 
 static void * ps_gstsink_vplayer_thread (void * data) {
@@ -841,7 +862,7 @@ static void * ps_gstsink_vplayer_thread (void * data) {
 	}
 	ps_video_player * player = session->vplayer;
 	gst_element_set_state (player->vpipeline, GST_STATE_PLAYING);
-	if (gst_element_get_state (player->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+	if (gst_element_get_state (player->vpipeline, NULL, NULL, 500000000) == GST_STATE_CHANGE_FAILURE) {
 		PS_LOG (LOG_ERR, "Unable to play pipeline..!\n");
 		session->active = FALSE;
 		g_thread_unref (g_thread_self());
@@ -852,7 +873,7 @@ static void * ps_gstsink_vplayer_thread (void * data) {
 	ps_video_packet * packet = NULL;
 	PS_LOG (LOG_VERB, "Joining GstSink gstreamer player thread..\n");
 	while (!g_atomic_int_get (&stopping) && g_atomic_int_get(&initialized) && !g_atomic_int_get(&session->hangingup)) {
-		packet = g_async_queue_pop (vpackets);
+		packet = g_async_queue_pop (session->vpackets);
 		if (packet == NULL) continue;
 		if (packet == &eos_vpacket) break;
 		if (packet->data == NULL) continue;
@@ -872,15 +893,29 @@ static void * ps_gstsink_vplayer_thread (void * data) {
 			gst_caps_unref (player->vfiltercaps);
 			player->isvCapsSet = TRUE;
 		}
-
+		
 		feedbuffer = gst_buffer_new_wrapped (packet->data, packet->length);
 		ret = gst_app_src_push_buffer (GST_APP_SRC(player->vsource), feedbuffer);
 		if (ret != GST_FLOW_OK) {
 			PS_LOG (LOG_WARN, "Incoming rtp packet not pushed!!\n");
 		}
+		player->last_received_video = ps_get_monotonic_time();
 	}
+
+	gst_object_unref (player->vbus);
+	gst_element_set_state (player->vpipeline, GST_STATE_NULL);
+	if (gst_element_get_state (player->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+		PS_LOG (LOG_ERR, "Unable to stop GSTREAMER video player..!!\n");
+	}
+	gst_object_unref (GST_OBJECT(player->vpipeline));
+	session->play_video = FALSE;
+
+	if (session->vpackets != NULL)
+		g_async_queue_unref (session->vpackets);
+	
 	/* FIXME: Send EOS on the gstreamer pipeline */
 	PS_LOG (LOG_VERB, "Leaving GstSink gstreamer player thread..\n");
+	g_thread_unref (g_thread_self());
 	return NULL;
 }
 
