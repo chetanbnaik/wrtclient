@@ -94,7 +94,8 @@ set(PSCLIENT_SOURCES
    sctp.c
    sdp.c
    turnrest.c
-   utils.c)
+   utils.c
+   ./plugins/plugin.c)
 
 message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 add_executable(psclient ${PSCLIENT_SOURCES})

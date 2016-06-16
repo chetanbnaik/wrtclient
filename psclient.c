@@ -89,7 +89,7 @@ static GMainContext * sessions_watchdog_context;
 static ps_mutex sessions_mutex;
 static GHashTable * sessions = NULL, * old_sessions = NULL;
 
-#define SESSION_TIMEOUT  300
+#define SESSION_TIMEOUT  60
 
 static gboolean ps_cleanup_session (gpointer user_data) {
 	ps_session * session = (ps_session *) user_data;
@@ -1776,7 +1776,7 @@ gint main (int argc, char * argv[]) {
 	}
 	
 	plugins = g_hash_table_new (g_str_hash, g_str_equal);
-	/* Load plugin 1*/
+	/* Load plugin 1
 	void * plugin_src = dlopen ("libpsgstreamer.so",RTLD_LAZY);
 	if (!plugin_src) {
 		PS_LOG (LOG_ERR, "Couldn't load libpsgstreamer.so: %s\n", dlerror());
@@ -1790,7 +1790,7 @@ gint main (int argc, char * argv[]) {
 	}
 	ps_plugin * ps_plugin_src = create_src();
 	ps_plugin_src->init (&ps_handler_plugin, configs_folder);
-	g_hash_table_insert (plugins, (gpointer)ps_plugin_src->get_package(), ps_plugin_src);
+	g_hash_table_insert (plugins, (gpointer)ps_plugin_src->get_package(), ps_plugin_src);*/
 	
 	/* Load plugin 2*/
 	void * plugin_sink = dlopen ("libpsgstsink.so",RTLD_LAZY);

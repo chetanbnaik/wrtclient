@@ -16,5 +16,6 @@ cd usrsctp
 make
 sudo make install
 
+install libnice version: >= 0.1.13
 
 openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout pscert.key -out pscert.pem
