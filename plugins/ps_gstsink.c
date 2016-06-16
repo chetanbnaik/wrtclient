@@ -421,7 +421,7 @@ void ps_gstsink_destroy_session(ps_plugin_session *handle, int *error) {
 		return;
 	}
 	PS_LOG(LOG_VERB, "Removing GstSink session...\n");
-	/* Stop the GSTREAMER pipeline here */
+		
 	ps_mutex_lock(&sessions_mutex);
 	if(!session->destroyed) {
 		session->destroyed = ps_get_monotonic_time();
@@ -835,7 +835,8 @@ void ps_gstsink_hangup_media (ps_plugin_session * handle) {
 	PS_LOG(LOG_VERB, "  >> %d (%s)\n", ret, janus_get_api_error(ret));
 	g_free(event_text);
 	
-	g_async_queue_push(session->vpackets, &eos_vpacket);
+	if (session->vpackets != NULL)
+		g_async_queue_push(session->vpackets, &eos_vpacket);
 	
 	/* FIXME Simulate a "stop" coming from the browser, Could be a simulated EOS !!
 	ps_gstsink_message *msg = g_malloc0(sizeof(ps_gstsink_message));

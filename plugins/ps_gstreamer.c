@@ -382,7 +382,9 @@ void ps_gstreamer_destroy (void) {
 				PS_LOG (LOG_ERR,"Unable to stop pipeline\n");
 			}
 			gst_object_unref (GST_OBJECT (source->pipeline));
-			old_mountpoints = g_list_append (old_mountpoints, mp);
+			ps_gstreamer_mountpoint_free(mountpoint);
+			mp = NULL;
+			continue;
 		}
 	}
 	ps_mutex_unlock (&mountpoints_mutex);
@@ -1330,7 +1332,8 @@ static void * ps_gstreamer_relay_thread (void * data) {
 	GstBuffer * abuffer, * vbuffer;
 	gpointer aframedata, vframedata;
 	gsize afsize, vfsize;
-	
+	char * abuffer, * vbuffer;
+	/* FIXME: memcpy the aframedata & vframedata, and free it locally */
 	ps_gstreamer_rtp_relay_packet packet;
 	while (!g_atomic_int_get (&stopping) && !mountpoint->destroyed) {
 		asample = gst_app_sink_pull_sample (GST_APP_SINK (source->asink));
@@ -1339,6 +1342,11 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			source->last_received_audio = ps_get_monotonic_time();
 			abuffer = gst_sample_get_buffer (asample);
 			gst_buffer_extract_dup (abuffer, 0, -1, &aframedata, &afsize);
+			
+			//abuffer = (char *)g_malloc0(afsize);
+			//memcpy(abuffer, aframedata, afsize);
+			//g_free (aframedata);
+			
 			bytes = afsize; //gst_buffer_get_size (abuffer);
 			gst_sample_unref (asample);
 			if (!mountpoint->enabled) {
@@ -1346,6 +1354,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 				continue;
 			}
 			rtp_header * rtp = (rtp_header *) aframedata;
+			//rtp_header * rtp = (rtp_header *) abuffer;
 			packet.data = rtp;
 			packet.length = bytes;
 			packet.is_video = 0;
