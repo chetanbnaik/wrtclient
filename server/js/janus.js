@@ -631,6 +631,7 @@ function Janus(gatewayCallbacks) {
 				if(wsKeepaliveTimeoutId) {
 					clearTimeout(wsKeepaliveTimeoutId);
 				}
+				ws.close(1000);
 			};
 
 			var onUnbindMessage = function(event){
