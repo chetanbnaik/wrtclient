@@ -293,7 +293,7 @@ int ps_gstreamer_init (ps_callbacks * callback, const char * config_path) {
 	//if (callback == NULL || config_path == NULL) return -1;
 	if (callback == NULL) return -1;
 	
-	gboolean is_private = FALSE, doaudio = TRUE, dovideo = TRUE, bufferkf = TRUE;
+	gboolean is_private = FALSE, doaudio = TRUE, dovideo = TRUE, bufferkf = FALSE;
 	uint64_t id = 100;
 	char * name = "ps-gstreamer", * desc = "ps-gstreamer";
 	char * amcast = NULL, * vmcast = NULL;
@@ -382,7 +382,7 @@ void ps_gstreamer_destroy (void) {
 				PS_LOG (LOG_ERR,"Unable to stop pipeline\n");
 			}
 			gst_object_unref (GST_OBJECT (source->pipeline));
-			ps_gstreamer_mountpoint_free(mountpoint);
+			ps_gstreamer_mountpoint_free(mp);
 			mp = NULL;
 			continue;
 		}
@@ -667,7 +667,7 @@ struct ps_plugin_result * ps_gstreamer_handle_message (ps_plugin_session * handl
 			goto error;
 		}
 		const char * type_text = json_string_value(type);
-		ps_gstreamer_mountpoint * mp = NULL;
+		//ps_gstreamer_mountpoint * mp = NULL;
 		if (!strcasecmp(type_text,"rtp")) {
 		}
 	} else if (!strcasecmp(request_text,"watch") || !strcasecmp(request_text, "start") || !strcasecmp(request_text,"pause") || !strcasecmp(request_text,"stop")) {
@@ -1332,9 +1332,12 @@ static void * ps_gstreamer_relay_thread (void * data) {
 	GstBuffer * abuffer, * vbuffer;
 	gpointer aframedata, vframedata;
 	gsize afsize, vfsize;
-	char * abuffer, * vbuffer;
+	char atempbuffer[1500], vtempbuffer[1500];
+	memset(atempbuffer, 0, 1500);
+	memset(vtempbuffer, 0, 1500);
 	/* FIXME: memcpy the aframedata & vframedata, and free it locally */
-	ps_gstreamer_rtp_relay_packet packet;
+	ps_gstreamer_rtp_relay_packet apacket;
+	ps_gstreamer_rtp_relay_packet vpacket;
 	while (!g_atomic_int_get (&stopping) && !mountpoint->destroyed) {
 		asample = gst_app_sink_pull_sample (GST_APP_SINK (source->asink));
 		if (asample != NULL) {
@@ -1343,41 +1346,39 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			abuffer = gst_sample_get_buffer (asample);
 			gst_buffer_extract_dup (abuffer, 0, -1, &aframedata, &afsize);
 			
-			//abuffer = (char *)g_malloc0(afsize);
-			//memcpy(abuffer, aframedata, afsize);
-			//g_free (aframedata);
+			//atempbuffer = (char *)g_malloc0(afsize);
+			memcpy(atempbuffer, aframedata, afsize);
+			g_free (aframedata);
 			
 			bytes = afsize; //gst_buffer_get_size (abuffer);
 			gst_sample_unref (asample);
+			
 			if (!mountpoint->enabled) {
-				g_free (aframedata);
 				continue;
 			}
-			rtp_header * rtp = (rtp_header *) aframedata;
-			//rtp_header * rtp = (rtp_header *) abuffer;
-			packet.data = rtp;
-			packet.length = bytes;
-			packet.is_video = 0;
-			packet.is_keyframe = 0;
-			if (ntohl(packet.data->ssrc) != a_last_ssrc) {
-				a_last_ssrc = ntohl (packet.data->ssrc);
+			rtp_header * rtp = (rtp_header *) atempbuffer;
+			apacket.data = rtp;
+			apacket.length = bytes;
+			apacket.is_video = 0;
+			apacket.is_keyframe = 0;
+			if (ntohl(apacket.data->ssrc) != a_last_ssrc) {
+				a_last_ssrc = ntohl (apacket.data->ssrc);
 				PS_LOG (LOG_INFO, "[%s] New audio stream! (ssrc=%u) \n", name, a_last_ssrc);
 				a_base_ts_prev = a_last_ts;
-				a_base_ts = ntohl (packet.data->timestamp);
+				a_base_ts = ntohl (apacket.data->timestamp);
 				a_base_seq_prev = a_last_seq;
-				a_base_seq = ntohs (packet.data->seq_number);
+				a_base_seq = ntohs (apacket.data->seq_number);
 			}
 			/* Assuming OPUS with framesize 20 */
-			a_last_ts = (ntohl(packet.data->timestamp)-a_base_ts) + a_base_ts_prev + 960;
-			packet.data->timestamp = htonl(a_last_ts);
-			a_last_seq = (ntohl(packet.data->seq_number)-a_base_seq) + a_base_seq_prev + 1;
-			packet.data->seq_number = htons(a_last_seq);
-			packet.data->type = mountpoint->codecs.audio_pt;
-			packet.timestamp = ntohl (packet.data->timestamp);
-			packet.seq_number = ntohs (packet.data->seq_number);
+			a_last_ts = (ntohl(apacket.data->timestamp)-a_base_ts) + a_base_ts_prev + 960;
+			apacket.data->timestamp = htonl(a_last_ts);
+			a_last_seq = (ntohl(apacket.data->seq_number)-a_base_seq) + a_base_seq_prev + 1;
+			apacket.data->seq_number = htons(a_last_seq);
+			apacket.data->type = mountpoint->codecs.audio_pt;
+			apacket.timestamp = ntohl (apacket.data->timestamp);
+			apacket.seq_number = ntohs (apacket.data->seq_number);
 			ps_mutex_lock (&mountpoints_mutex);
-			g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			//g_free (aframedata);
+			g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &apacket);
 			ps_mutex_unlock (&mountpoints_mutex);
 			//continue;
 		}
@@ -1388,10 +1389,15 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			source->last_received_video = ps_get_monotonic_time();
 			vbuffer = gst_sample_get_buffer (vsample);
 			gst_buffer_extract_dup (vbuffer, 0, -1, &vframedata, &vfsize);
-			bytes = vfsize;
 			
+			//vtempbuffer = (char *)g_malloc0(vfsize);
+			memcpy(vtempbuffer, vframedata, vfsize);
+			g_free (vframedata);
+			
+			bytes = vfsize;
 			gst_sample_unref (vsample);
-			rtp_header * rtp = (rtp_header *) vframedata;
+			
+			rtp_header * rtp = (rtp_header *) vtempbuffer;
 			if (source->keyframe.enabled) {
 				if (source->keyframe.temp_ts > 0 && ntohl(rtp->timestamp) != source->keyframe.temp_ts) {
 					PS_LOG(LOG_HUGE, "[%s] ... last part of keyframe received! ts=%"SCNu32", %d packets\n", mountpoint->name, source->keyframe.temp_ts, g_list_length(source->keyframe.temp_keyframe));
@@ -1442,34 +1448,33 @@ static void * ps_gstreamer_relay_thread (void * data) {
 					ps_mutex_unlock(&source->keyframe.mutex);
 				}
 			}
+			
 			if (!mountpoint->enabled) {
-				g_free (vframedata);
 				continue;
 			}
-			packet.data = rtp;
-			packet.length = bytes;
-			packet.is_video = 1;
-			packet.is_keyframe = 0;
-			if (ntohl(packet.data->ssrc) != v_last_ssrc) {
-				v_last_ssrc = ntohl (packet.data->ssrc);
+			vpacket.data = rtp;
+			vpacket.length = bytes;
+			vpacket.is_video = 1;
+			vpacket.is_keyframe = 0;
+			if (ntohl(vpacket.data->ssrc) != v_last_ssrc) {
+				v_last_ssrc = ntohl (vpacket.data->ssrc);
 				PS_LOG(LOG_INFO, "[%s] New video stream! (ssrc=%u)\n", name, v_last_ssrc);
 				v_base_ts_prev = v_last_ts;
-				v_base_ts = ntohl(packet.data->timestamp);
+				v_base_ts = ntohl(vpacket.data->timestamp);
 				v_base_seq_prev = v_last_seq;
-				v_base_seq = ntohs(packet.data->seq_number);
+				v_base_seq = ntohs(vpacket.data->seq_number);
 			}
 			/* FIXME We're assuming 15fps here... */
-			v_last_ts = (ntohl(packet.data->timestamp)-v_base_ts)+v_base_ts_prev+4500;	
-			packet.data->timestamp = htonl(v_last_ts);
-			v_last_seq = (ntohs(packet.data->seq_number)-v_base_seq)+v_base_seq_prev+1;
-			packet.data->seq_number = htons(v_last_seq);
-			packet.data->type = mountpoint->codecs.video_pt;
-			packet.timestamp = ntohl(packet.data->timestamp);
-			packet.seq_number = ntohs(packet.data->seq_number);
+			v_last_ts = (ntohl(vpacket.data->timestamp)-v_base_ts)+v_base_ts_prev+4500;	
+			vpacket.data->timestamp = htonl(v_last_ts);
+			v_last_seq = (ntohs(vpacket.data->seq_number)-v_base_seq)+v_base_seq_prev+1;
+			vpacket.data->seq_number = htons(v_last_seq);
+			vpacket.data->type = mountpoint->codecs.video_pt;
+			vpacket.timestamp = ntohl(vpacket.data->timestamp);
+			vpacket.seq_number = ntohs(vpacket.data->seq_number);
 			/* Go! */
 			ps_mutex_lock(&mountpoint->mutex);
-			g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &packet);
-			//g_free (vframedata);
+			g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &vpacket);
 			ps_mutex_unlock(&mountpoint->mutex);
 			//continue;
 		}
