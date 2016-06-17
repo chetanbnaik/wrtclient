@@ -7,6 +7,7 @@ else
 	server = "https://" + window.location.hostname + ":8080/ws";
 
 var gstsink = null;
+var gstsrc = null;
 var spinner = null;
 var bandwidth = 1024 * 1024;
 
@@ -15,7 +16,9 @@ var remotePlaying = false;
 
 function StopRemote () {
 	$('#remoteVideo').hide();
+	gstsrc.send({'message': {'request':'stop'}});
 	$('#remoteButton').html("Start").click(StartRemote);
+	remotePlaying = false;
 }
 
 function StartRemote () {
@@ -25,6 +28,83 @@ function StartRemote () {
 	
 	janus = new Janus({
 		server: server,
+		success: function () {
+			janus.attach({
+				plugin: "ps.plugin.gstreamer",
+				success: function(pluginHandle) {
+					gstsrc = pluginHandle;
+					Janus.log("Plugin attached! (" + gstsrc.getPlugin() + ", id=" + gstsrc.getId() + ")");
+					var body = {"request": "list"};
+					gstsrc.send({"message": body, success: function(result){
+						if (result === null || result === undefined) {
+							bootbox.alert("Got no response to our query for available streams");
+							return;
+						}
+						if(result["list"] !== undefined && result["list"] !== null) {
+							var list = result["list"];
+							Janus.debug(list);
+							var body = {"request":"watch",id:list[0]["id"]};
+							gstsrc.send({"message": body});
+						}
+					}});
+					$('#remoteButton').html("Stop").click(StopRemote);
+				},
+				error: function(error) {
+					Janus.error(" -- Error attaching plugin.. ", error);
+					bootbox.alert("Error attaching plugin... " + error);
+				},
+				onmessage: function(msg, jsep) {
+					Janus.debug(" ::: got a message :::");
+					Janus.debug(JSON.stringify(msg));
+					var result = msg["result"];
+					if (result !== null && result !== undefined) {
+						var status = result["status"];
+						if (status === 'starting'){
+							Janus.debug(status);
+						} else if(status === 'started') {
+							Janus.debug(status);
+						} else if(status === 'stopping') {
+							Janus.debug(status);
+							gstsrc.hangup();
+							remotePlaying = false;
+							janus.destroy();
+						}
+					} else if (msg["error"] !== undefined && msg["error"] !== null) {
+						bootbox.alert(msg["error"]);
+						return;
+					}
+					if (jsep !== undefined && jsep !== null) {
+						Janus.debug("Handling SDP as well");
+						Janus.debug(jsep);
+						gstsrc.createAnswer({
+							jsep: jsep,
+							media: {audioSend: false, videoSend: false},
+							success: function (jsep) {
+								Janus.debug("Got SDP!");
+								Janus.debug(jsep);
+								var body = {"request": "start"};
+								gstsrc.send({"message": body, "jsep": jsep});
+							},
+							error: function(error) {
+								Janus.error("WebRTC error:", error);
+								bootbox.alert("WebRTC error... " + JSON.stringify(error));
+							}
+						});
+					}
+				},
+				onremotestream: function(stream) {
+					if (remotePlaying === true) {return;}
+					remotePlaying = true;
+					Janus.debug(" ::: Got a remote stream :::");
+					Janus.debug(JSON.stringify(stream));
+					attachMediaStream($('#remoteVideo').get(0), stream);
+				},
+				oncleanup: function() {
+					Janus.log(" ::: Got a cleanup notification :::");
+					remotePlaying = false;
+				}
+			});
+		},
 		error: function(error) {
 			Janus.error(error);
 			bootbox.alert(error, function(){window.location.reload();});
@@ -35,8 +115,6 @@ function StartRemote () {
 			window.location.reload();
 		}
 	});
-	
-	$('#remoteButton').html("Stop").click(StopRemote);
 }
 
 function StopLocal() {
