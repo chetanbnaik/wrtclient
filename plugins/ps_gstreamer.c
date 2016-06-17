@@ -1191,6 +1191,9 @@ ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 	live_rtp_source->asink = gst_element_factory_make("appsink", "asink");
 	if (dovideo) {
 		live_rtp_source->vsource = gst_element_factory_make(vsrcname, "vsource");
+		if (!strcasecmp(vsrcname,"videotestsrc")){
+			g_object_set (live_rtp_source->vsource, "pattern", 1, NULL);
+		}
 		live_rtp_source->vfilter = gst_element_factory_make("capsfilter", "vfilter");
 		live_rtp_source->vconvert = gst_element_factory_make ("videoconvert", "vconvert");
 		if (strstr(vrtpmap, "vp8") || strstr(vrtpmap, "VP8")) {
@@ -1208,8 +1211,8 @@ ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 									NULL);
 	live_rtp_source->vfiltercaps = gst_caps_new_simple ("video/x-raw",
 									"format", G_TYPE_STRING, "RGB",
-									"width", G_TYPE_INT, 480,
-									"height", G_TYPE_INT, 360,
+									"width", G_TYPE_INT, 320,
+									"height", G_TYPE_INT, 240,
 									"framerate", GST_TYPE_FRACTION, 30, 1,
 									NULL);
 	g_object_set (live_rtp_source->afilter, "caps", live_rtp_source->afiltercaps, NULL);
@@ -1332,9 +1335,10 @@ static void * ps_gstreamer_relay_thread (void * data) {
 	GstBuffer * abuffer, * vbuffer;
 	gpointer aframedata, vframedata;
 	gsize afsize, vfsize;
-	char atempbuffer[1500], vtempbuffer[1500];
+	/*char atempbuffer[1500], vtempbuffer[1500];
 	memset(atempbuffer, 0, 1500);
-	memset(vtempbuffer, 0, 1500);
+	memset(vtempbuffer, 0, 1500);*/
+	char * atempbuffer, * vtempbuffer;
 	/* FIXME: memcpy the aframedata & vframedata, and free it locally */
 	ps_gstreamer_rtp_relay_packet apacket;
 	ps_gstreamer_rtp_relay_packet vpacket;
@@ -1346,7 +1350,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			abuffer = gst_sample_get_buffer (asample);
 			gst_buffer_extract_dup (abuffer, 0, -1, &aframedata, &afsize);
 			
-			//atempbuffer = (char *)g_malloc0(afsize);
+			atempbuffer = (char *)g_malloc0(afsize);
 			memcpy(atempbuffer, aframedata, afsize);
 			g_free (aframedata);
 			
@@ -1356,8 +1360,8 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			if (!mountpoint->enabled) {
 				continue;
 			}
-			rtp_header * rtp = (rtp_header *) atempbuffer;
-			apacket.data = rtp;
+			rtp_header * artp = (rtp_header *) atempbuffer;
+			apacket.data = artp;
 			apacket.length = bytes;
 			apacket.is_video = 0;
 			apacket.is_keyframe = 0;
@@ -1380,6 +1384,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			ps_mutex_lock (&mountpoints_mutex);
 			g_list_foreach (mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &apacket);
 			ps_mutex_unlock (&mountpoints_mutex);
+			g_free (atempbuffer);
 			//continue;
 		}
 		
@@ -1390,16 +1395,16 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			vbuffer = gst_sample_get_buffer (vsample);
 			gst_buffer_extract_dup (vbuffer, 0, -1, &vframedata, &vfsize);
 			
-			//vtempbuffer = (char *)g_malloc0(vfsize);
+			vtempbuffer = (char *)g_malloc0(vfsize);
 			memcpy(vtempbuffer, vframedata, vfsize);
 			g_free (vframedata);
 			
 			bytes = vfsize;
 			gst_sample_unref (vsample);
 			
-			rtp_header * rtp = (rtp_header *) vtempbuffer;
+			rtp_header * vrtp = (rtp_header *) vtempbuffer;
 			if (source->keyframe.enabled) {
-				if (source->keyframe.temp_ts > 0 && ntohl(rtp->timestamp) != source->keyframe.temp_ts) {
+				if (source->keyframe.temp_ts > 0 && ntohl(vrtp->timestamp) != source->keyframe.temp_ts) {
 					PS_LOG(LOG_HUGE, "[%s] ... last part of keyframe received! ts=%"SCNu32", %d packets\n", mountpoint->name, source->keyframe.temp_ts, g_list_length(source->keyframe.temp_keyframe));
 					source->keyframe.temp_ts = 0;
 					ps_mutex_lock(&source->keyframe.mutex);
@@ -1415,7 +1420,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 					source->keyframe.latest_keyframe = source->keyframe.temp_keyframe;
 					source->keyframe.temp_keyframe = NULL;
 					ps_mutex_unlock(&source->keyframe.mutex);
-				} else if (ntohl (rtp->timestamp) == source->keyframe.temp_ts) {
+				} else if (ntohl (vrtp->timestamp) == source->keyframe.temp_ts) {
 					ps_mutex_lock(&source->keyframe.mutex);
 					PS_LOG(LOG_HUGE, "[%s] ... other part of keyframe received! ts=%"SCNu32"\n", mountpoint->name, source->keyframe.temp_ts);
 					ps_gstreamer_rtp_relay_packet * pkt = g_malloc0(sizeof(ps_gstreamer_rtp_relay_packet));
@@ -1427,11 +1432,11 @@ static void * ps_gstreamer_relay_thread (void * data) {
 					pkt->is_keyframe = 1;
 					pkt->length = bytes;
 					pkt->timestamp = source->keyframe.temp_ts;
-					pkt->seq_number = ntohs(rtp->seq_number);
+					pkt->seq_number = ntohs(vrtp->seq_number);
 					source->keyframe.temp_keyframe = g_list_append(source->keyframe.temp_keyframe, pkt);
 					ps_mutex_unlock(&source->keyframe.mutex);
 				} else if (ps_gstreamer_is_keyframe(mountpoint->codecs.video_codec, vframedata, bytes)) {
-					source->keyframe.temp_ts = ntohl(rtp->timestamp);
+					source->keyframe.temp_ts = ntohl(vrtp->timestamp);
 					PS_LOG (LOG_HUGE, "[%s] New keyframe received! ts=%"SCNu32"\n", mountpoint->name, source->keyframe.temp_ts);
 					ps_mutex_lock(&source->keyframe.mutex);
 					ps_gstreamer_rtp_relay_packet * pkt = g_malloc0(sizeof(ps_gstreamer_rtp_relay_packet));
@@ -1443,7 +1448,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 					pkt->is_keyframe = 1;
 					pkt->length = bytes;
 					pkt->timestamp = source->keyframe.temp_ts;
-					pkt->seq_number = ntohs(rtp->seq_number);
+					pkt->seq_number = ntohs(vrtp->seq_number);
 					source->keyframe.temp_keyframe = g_list_append(source->keyframe.temp_keyframe, pkt);
 					ps_mutex_unlock(&source->keyframe.mutex);
 				}
@@ -1452,7 +1457,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			if (!mountpoint->enabled) {
 				continue;
 			}
-			vpacket.data = rtp;
+			vpacket.data = vrtp;
 			vpacket.length = bytes;
 			vpacket.is_video = 1;
 			vpacket.is_keyframe = 0;
@@ -1476,6 +1481,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			ps_mutex_lock(&mountpoint->mutex);
 			g_list_foreach(mountpoint->listeners, ps_gstreamer_relay_rtp_packet, &vpacket);
 			ps_mutex_unlock(&mountpoint->mutex);
+			g_free (vtempbuffer);
 			//continue;
 		}
 		
