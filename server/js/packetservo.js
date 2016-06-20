@@ -78,7 +78,7 @@ function StartRemote () {
 						Janus.debug(jsep);
 						gstsrc.createAnswer({
 							jsep: jsep,
-							media: {audioSend: false, videoSend: false},
+							media: {audioSend: false, videoSend: false, data: true},
 							success: function (jsep) {
 								Janus.debug("Got SDP!");
 								Janus.debug(jsep);
@@ -150,6 +150,7 @@ function StartLocal() {
 					vstream = canvas.captureStream(10);
 					gstsink.createOffer({
 						stream: vstream,
+						//media: {data: true},
 						success: function(jsep) {
 							Janus.debug("Got SDP!");
 							Janus.debug(jsep);
@@ -249,4 +250,56 @@ $(document).ready(function() {
 	Janus.init({debug: "all"});
 	$('#localButton').click(StartLocal);
 	$('#remoteButton').click(StartRemote);
+	$('#sendData').click(sendData);
+});
+
+function sendData(){
+	if (gstsrc !== null && gstsrc !== undefined) {
+		gstsrc.data({
+			text: "test",
+			error: function(reason){bootbox.alert(reason);},
+			success: function() {Janus.debug("'test' data send");}
+		});
+	} else {
+		Janus.debug("Not connected! 'gstsrc' found null");
+	}
+}
+
+$(document).keydown(function(e){
+	if (gstsrc !== null && gstsrc !== undefined) {
+		var theCode = e.keyCode ? e.KeyCode : e.which ? e.which : e.charCode;
+		switch(theCode) {
+			case 76: 	//"l" key, for right command
+				Janus.debug(e);
+				gstsrc.data({
+					text: "right",
+					error: function(reason) {bootbox.alert(reason);},
+					success: function(){},
+				});
+				break;
+			case 74:	//"j" key, for left command
+				gstsrc.data({
+					text: "left",
+					error: function(reason) {bootbox.alert(reason);},
+					success: function(){},
+				});
+				break;
+			case 75:	//"k" key, for back command
+				gstsrc.data({
+					text: "back",
+					error: function(reason) {bootbox.alert(reason);},
+					success: function(){},
+				});
+				break;
+			case 73:	//"i" key, for fwd command
+				gstsrc.data({
+					text: "fwd",
+					error: function(reason) {bootbox.alert(reason);},
+					success: function(){},
+				});
+				break;
+			default: return;
+		}
+		e.preventDefault();
+	}
 });
