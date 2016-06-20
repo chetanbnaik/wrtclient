@@ -824,6 +824,22 @@ void ps_gstreamer_incoming_rtcp (ps_plugin_session * handle, int video, char * b
 }
 
 void ps_gstreamer_incoming_data (ps_plugin_session * handle, char * buf, int len) {
+	if (handle == NULL || handle->stopped || g_atomic_int_get (&stopping) || !g_atomic_int_get (&initialized))
+		return;
+	if (gateway) {
+		ps_gstreamer_session * session = (ps_gstreamer_session *)handle->plugin_handle;
+		if (!session) {
+			PS_LOG(LOG_ERR, "No session associated with this handle...\n");
+			return;
+		}
+		if (session->destroyed) return;
+		if (buf == NULL || len <= 0) return;
+		char * text = g_malloc0(len+1);
+		memcpy(text, buf, len);
+		*(text+len) = '\0';
+		PS_LOG (LOG_INFO, "Got a datachannel message (%zu bytes): %s\n", strlen(text), text);
+		g_free (text);
+	}
 	return;
 }
 
@@ -945,6 +961,17 @@ static void * ps_gstreaming_handler (void * data) {
 			mp->listeners = g_list_append(mp->listeners, session);
 			ps_mutex_unlock (&mp->mutex);
 			sdp_type = "offer";	/* We're always going to do the offer ourselves, never answer */
+/*
+m=application 9 DTLS/SCTP 5000
+c=IN IP4 0.0.0.0
+a=sendrecv
+a=ice-pwd:41a8bcec92b0575956e2141d8108d54d
+a=ice-ufrag:f27aab99
+a=mid:sdparta_2
+a=sctpmap:5000 webrtc-datachannel 256
+a=setup:actpass
+a=ssrc:1634527726 cname:{642bf1f8-d1a9-45ea-ab5b-0de0491471cf}
+*/			
 			char sdptemp[2048];
 			memset(sdptemp, 0, 2048);
 			gchar buffer[512];
@@ -1006,6 +1033,12 @@ static void * ps_gstreaming_handler (void * data) {
 				g_strlcat(sdptemp, buffer, 2048);
 				g_strlcat(sdptemp, "a=sendonly\r\n", 2048);
 			}
+			/* Always offer to receive data */
+			g_snprintf(buffer, 512, 
+				"m=application 1 DTLS/SCTP 5000\r\n"
+				"c=IN IP4 1.1.1.1\r\n"
+				"a=sctpmap:5000 webrtc-datachannel 16\r\n");
+			g_strlcat(sdptemp, buffer, 2048);
 			sdp = g_strdup(sdptemp);
 			PS_LOG(LOG_VERB, "Going to offer this SDP:\n%s\n", sdp);
 			result = json_object();
