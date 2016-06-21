@@ -309,6 +309,7 @@ void ps_gstsink_destroy (void) {
 		watchdog = NULL;
 	}
 	usleep(500000);
+	
 	ps_mutex_lock(&sessions_mutex);
 	/* Cleanup session data */
 	GHashTableIter iter;
@@ -325,8 +326,11 @@ void ps_gstsink_destroy (void) {
 			}
 			gst_object_unref (GST_OBJECT(player->vpipeline));
 		}
+		/*g_hash_table_iter_remove (&iter);
+		session->handle = NULL;
+		g_free(session);
+		session = NULL;*/
 		g_hash_table_remove(sessions, session->handle);
-		/* Cleaning up and removing the session is done in a lazy way */
 		old_sessions = g_list_append(old_sessions, session);
 	}
 	
@@ -335,7 +339,7 @@ void ps_gstsink_destroy (void) {
 	g_async_queue_unref(messages);
 	messages = NULL;
 	sessions = NULL;
-
+	
 	g_atomic_int_set(&initialized, 0);
 	g_atomic_int_set(&stopping, 0);
 	PS_LOG(LOG_INFO, "%s destroyed!\n", PS_GSTSINK_NAME);
@@ -424,6 +428,22 @@ void ps_gstsink_destroy_session(ps_plugin_session *handle, int *error) {
 		
 	ps_mutex_lock(&sessions_mutex);
 	if(!session->destroyed) {
+		/*
+		if (session->vplayer != NULL) {
+			ps_video_player * player = session->vplayer;
+			gst_object_unref (player->vbus);
+			gst_element_set_state (player->vpipeline, GST_STATE_NULL);
+			if (gst_element_get_state (player->vpipeline, NULL, NULL, GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_FAILURE) {
+				PS_LOG (LOG_ERR, "Unable to stop GSTREAMER video player..!!\n");
+			}
+			gst_object_unref (GST_OBJECT(player->vpipeline));
+		}
+		if (session->active && gateway != NULL) {
+			gateway->close_pc(session->handle);
+		}*/
+		if (session->vpackets != NULL)
+			g_async_queue_push(session->vpackets, &eos_vpacket);
+			
 		session->destroyed = ps_get_monotonic_time();
 		g_hash_table_remove(sessions, handle);
 		/* Cleaning up and removing the session is done in a lazy way */
@@ -767,7 +787,7 @@ void ps_gstsink_incoming_rtp (ps_plugin_session * handle, int video, char * buf,
 			if (session->vpackets != NULL)
 				g_async_queue_push (session->vpackets, pkt);
 		}
-		
+		ps_gstsink_send_rtcp_feedback (handle, video, buf, len);
 		return;
 	}
 }
@@ -876,7 +896,10 @@ static void * ps_gstsink_vplayer_thread (void * data) {
 	while (!g_atomic_int_get (&stopping) && g_atomic_int_get(&initialized) && !g_atomic_int_get(&session->hangingup)) {
 		packet = g_async_queue_pop (session->vpackets);
 		if (packet == NULL) continue;
-		if (packet == &eos_vpacket) break;
+		if (packet == &eos_vpacket) {
+			gst_app_src_end_of_stream (GST_APP_SRC(player->vsource));
+			break;
+		}
 		if (packet->data == NULL) continue;
 		rtp_header * rtp = (rtp_header *) packet->data;
 		
@@ -902,6 +925,7 @@ static void * ps_gstsink_vplayer_thread (void * data) {
 		}
 		player->last_received_video = ps_get_monotonic_time();
 	}
+	usleep(500000);
 
 	gst_object_unref (player->vbus);
 	gst_element_set_state (player->vpipeline, GST_STATE_NULL);
@@ -1070,6 +1094,7 @@ static void * ps_gstsink_handler (void * data) {
 			/* Done */
 			result = json_object();
 			json_object_set_new(result, "status", json_string("stopped"));
+			//gateway->close_pc(session->handle);
 		} else {
 			PS_LOG(LOG_VERB, "Unknown request '%s'\n", request_text);
 			error_code = PS_GSTSINK_ERROR_INVALID_REQUEST;

@@ -818,8 +818,30 @@ void ps_gstreamer_incoming_rtcp (ps_plugin_session * handle, int video, char * b
 		return;
 		
 	uint64_t bw = janus_rtcp_get_remb (buf, len);
-	if (bw > 0) {
-		PS_LOG (LOG_HUGE, "REMB for this PeerConnection: %"SCNu64"\n", bw);
+	if ((bw > 1024 * 256) && (bw < 1024 * 2048)) {
+		ps_gstreamer_session * session = (ps_gstreamer_session *)handle->plugin_handle;
+		if (!session) {
+			PS_LOG (LOG_ERR, "No session associated with this handle\n");
+			return;
+		}
+		if (session->destroyed) return;
+		if (!session->started || session->paused) return;
+		ps_gstreamer_mountpoint * mp = (ps_gstreamer_mountpoint *)session->mountpoint;
+		ps_gstreamer_rtp_source * source = mp->source;
+		if (source == NULL) {
+			PS_LOG (LOG_ERR, "[%s] Invalid RTP source mountpoint!\n", mp->name);
+			return;
+		}
+
+		GstElement * encoder = NULL;
+		encoder = gst_bin_get_by_name(GST_BIN(source->pipeline), "vencoder");
+		if (!encoder) {
+			PS_LOG (LOG_ERR, "Unable to retrieve video encoder\n");
+			return;
+		}
+		g_object_set(encoder, "target-bitrate", bw, NULL);
+		PS_LOG (LOG_VERB, "Target bitrate of video encoder set to %"SCNu64"\n", bw);
+		gst_object_unref (encoder);
 	}
 }
 
@@ -1231,6 +1253,7 @@ ps_gstreamer_mountpoint * ps_gstreamer_create_rtp_source (
 		live_rtp_source->vconvert = gst_element_factory_make ("videoconvert", "vconvert");
 		if (strstr(vrtpmap, "vp8") || strstr(vrtpmap, "VP8")) {
 			live_rtp_source->vencoder = gst_element_factory_make("vp8enc", "vencoder");
+			g_object_set(live_rtp_source->vencoder, "target-bitrate", 256 * 1024, NULL);
 			live_rtp_source->vrtppay = gst_element_factory_make("rtpvp8pay", "vrtppay");
 		} else if (strstr(vrtpmap, "h264") || strstr(vrtpmap, "H264")) {
 			live_rtp_source->vencoder = gst_element_factory_make("x264enc", "vencoder");
@@ -1409,7 +1432,7 @@ static void * ps_gstreamer_relay_thread (void * data) {
 			/* Assuming OPUS with framesize 20 */
 			a_last_ts = (ntohl(apacket.data->timestamp)-a_base_ts) + a_base_ts_prev + 960;
 			apacket.data->timestamp = htonl(a_last_ts);
-			a_last_seq = (ntohl(apacket.data->seq_number)-a_base_seq) + a_base_seq_prev + 1;
+			a_last_seq = (ntohs(apacket.data->seq_number)-a_base_seq) + a_base_seq_prev + 1;
 			apacket.data->seq_number = htons(a_last_seq);
 			apacket.data->type = mountpoint->codecs.audio_pt;
 			apacket.timestamp = ntohl (apacket.data->timestamp);
